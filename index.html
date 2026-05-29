@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="DriveReady"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="application-name" content="DriveReady"/>
+<meta name="theme-color" content="#141414"/>
+<meta name="description" content="Queensland Rail RTD operational reference — IMU, SMU & NGR fleets"/>
+<title>DriveReady</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:17px;-webkit-text-size-adjust:100%}
+body{font-family:'Barlow',sans-serif;min-height:100dvh;overflow-x:hidden;transition:background .3s,color .3s}
+
+/* ── DESIGN TOKENS ────────────────────────────────────────────────── */
+:root{
+  --green:#00c853;
+  --green-dim:rgba(0,200,83,.12);
+  --green-mid:rgba(0,200,83,.25);
+  --amber:#ffab00;
+  --red:#ff3d3d;
+  --red-dim:rgba(255,61,61,.12);
+  --blue:#2979ff;
+  --blue-dim:rgba(41,121,255,.12);
+
+  --bg:#141414;
+  --surface:#1e1e1e;
+  --surface2:#252525;
+  --surface3:#2c2c2c;
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.13);
+
+  --text1:#f0f0f0;
+  --text2:#a0a0a0;
+  --text3:#666;
+
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --shadow-sm:0 2px 12px rgba(0,0,0,.3);
+
+  --nav-h:56px;
+  --header-h:60px;
+}
+
+[data-theme="light"]{
+  --bg:#f4f5f7;
+  --surface:#ffffff;
+  --surface2:#eff0f2;
+  --surface3:#e4e5e8;
+  --border:rgba(0,0,0,.08);
+  --border2:rgba(0,0,0,.13);
+  --text1:#111;
+  --text2:#555;
+  --text3:#999;
+  --shadow:0 4px 24px rgba(0,0,0,.1);
+  --shadow-sm:0 2px 12px rgba(0,0,0,.08);
+}
+
+/* ── LAYOUT ───────────────────────────────────────────────────────── */
+body{background:var(--bg);color:var(--text1)}
+#app{display:flex;flex-direction:column;min-height:100dvh}
+
+/* ── HEADER ───────────────────────────────────────────────────────── */
+#header{
+  position:sticky;top:0;z-index:100;
+  height:var(--header-h);
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 16px;gap:12px;
+  backdrop-filter:blur(12px);
+}
+.header-back{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--surface2);border:none;
+  color:var(--text1);cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+  font-size:20px;transition:background .2s;flex-shrink:0;
+}
+.header-back.show{display:flex}
+.header-back:active{background:var(--surface3)}
+.header-title{
+  flex:1;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:22px;font-weight:800;letter-spacing:.5px;
+  color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.header-logo{color:var(--green)}
+.header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--surface2);border:none;
+  color:var(--text1);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;transition:background .2s,transform .15s;
+}
+.icon-btn:active{background:var(--surface3);transform:scale(.92)}
+
+/* ── SEARCH BAR ───────────────────────────────────────────────────── */
+#search-bar{
+  padding:10px 16px;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:var(--header-h);z-index:99;
+}
+.search-wrap{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:12px;padding:0 14px;height:42px;
+  transition:border-color .2s;
+}
+.search-wrap:focus-within{border-color:var(--green)}
+.search-icon{font-size:16px;color:var(--text3)}
+#search-input{
+  flex:1;background:none;border:none;outline:none;
+  font-family:'Barlow',sans-serif;font-size:16px;color:var(--text1);
+}
+#search-input::placeholder{color:var(--text3)}
+#search-clear{
+  background:none;border:none;color:var(--text3);
+  cursor:pointer;font-size:18px;display:none;padding:4px;
+  line-height:1;
+}
+#search-clear.show{display:block}
+
+/* ── MAIN CONTENT ─────────────────────────────────────────────────── */
+#main{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + 16px)}
+.screen{display:none;animation:fadeUp .25s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BOTTOM NAV ───────────────────────────────────────────────────── */
+#nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;
+  background:none;border:none;cursor:pointer;
+  color:var(--text3);transition:color .2s;padding:6px 4px;
+}
+.nav-item.active{color:var(--green)}
+.nav-icon{font-size:22px;line-height:1}
+.nav-label{font-size:11px;font-weight:700;letter-spacing:.3px;font-family:'Barlow Condensed',sans-serif}
+
+/* ── HOME SCREEN ──────────────────────────────────────────────────── */
+.home-hero{
+  background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%);
+  border-bottom:1px solid var(--border);
+  padding:24px 16px 20px;
+  position:relative;overflow:hidden;
+}
+.home-hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,200,83,.15) 0%,transparent 70%);
+}
+.hero-eyebrow{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:2px;
+  color:var(--green);text-transform:uppercase;margin-bottom:6px;
+}
+.hero-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:38px;font-weight:800;line-height:1.1;
+  color:var(--text1);margin-bottom:8px;
+}
+.hero-title span{color:var(--green)}
+.hero-sub{font-size:15px;color:var(--text2);line-height:1.5}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--green-dim);border:1px solid var(--green);
+  border-radius:20px;padding:4px 12px;margin-top:14px;
+  font-size:12px;font-weight:700;color:var(--green);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;
+}
+
+.section-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:var(--text3);text-transform:uppercase;
+  padding:20px 16px 8px;
+}
+.home-grid{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.home-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;
+}
+.home-card:active{transform:scale(.98);box-shadow:var(--shadow-sm)}
+.home-card:hover{border-color:var(--border2)}
+.home-card.accent{border-color:rgba(0,200,83,.3)}
+.home-card.accent:hover{border-color:var(--green)}
+.card-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.icon-green{background:var(--green-dim)}
+.icon-amber{background:rgba(255,171,0,.12)}
+.icon-blue{background:var(--blue-dim)}
+.icon-red{background:var(--red-dim)}
+.card-body{flex:1;min-width:0}
+.card-title{font-size:17px;font-weight:700;color:var(--text1);margin-bottom:2px}
+.card-sub{font-size:14px;color:var(--text2)}
+.card-arrow{color:var(--text3);font-size:18px}
+.card-count{
+  background:var(--green-dim);color:var(--green);
+  font-size:12px;font-weight:700;padding:2px 8px;
+  border-radius:20px;font-family:'Barlow Condensed',sans-serif;
+}
+
+/* ── SECTION HEADER ───────────────────────────────────────────────── */
+.section-hero{
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--border);
+}
+.section-hero-eyebrow{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:2px;
+  color:var(--green);text-transform:uppercase;margin-bottom:4px;
+}
+.section-hero-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:30px;font-weight:800;color:var(--text1);margin-bottom:4px;
+}
+.section-hero-sub{font-size:15px;color:var(--text2);line-height:1.5}
+
+/* ── INFO BANNER ──────────────────────────────────────────────────── */
+.info-banner{
+  margin:12px 16px;padding:12px 14px;
+  background:var(--blue-dim);border:1px solid rgba(41,121,255,.25);
+  border-radius:var(--radius-sm);display:flex;gap:10px;align-items:flex-start;
+}
+.info-banner .bi{font-size:18px;color:var(--blue);flex-shrink:0;margin-top:1px}
+.info-banner p{font-size:14px;color:var(--text2);line-height:1.5}
+.info-banner strong{color:var(--text1)}
+
+/* ── CATEGORY PILLS ───────────────────────────────────────────────── */
+.pills-wrap{
+  padding:12px 16px;display:flex;gap:8px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.pills-wrap::-webkit-scrollbar{display:none}
+.pill{
+  flex-shrink:0;padding:8px 16px;border-radius:20px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:14px;font-weight:600;color:var(--text2);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;
+}
+.pill.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+
+/* ── FAULT INDEX LIST ─────────────────────────────────────────────── */
+.fault-index{padding:0 16px 16px;display:flex;flex-direction:column;gap:0}
+.fault-index-group-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:2px;
+  color:var(--text3);text-transform:uppercase;
+  padding:18px 0 8px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:4px;
+}
+.fault-index-item{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 0;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;transition:opacity .15s;
+}
+.fault-index-item:active{opacity:.6}
+.fault-index-item:last-child{border-bottom:none}
+.fi-dot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+}
+.fi-dot.critical{background:var(--red)}
+.fi-dot.caution{background:var(--amber)}
+.fi-dot.ok{background:var(--green)}
+.fi-name{
+  flex:1;font-size:16px;font-weight:600;color:var(--text1);
+  line-height:1.3;
+}
+.fi-arrow{color:var(--text3);font-size:18px;flex-shrink:0}
+
+/* ── FAULT DETAIL PAGE ────────────────────────────────────────────── */
+.detail-header{
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--border);
+}
+.detail-cat-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:2px;
+  color:var(--text3);text-transform:uppercase;margin-bottom:6px;
+}
+.detail-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:30px;font-weight:800;color:var(--text1);
+  line-height:1.15;
+}
+.detail-severity{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;padding:5px 14px;border-radius:20px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:.5px;
+}
+.detail-severity.critical{background:var(--red-dim);color:var(--red)}
+.detail-severity.caution{background:rgba(255,171,0,.12);color:var(--amber)}
+
+.detail-section{
+  margin:12px 16px 0;
+  border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--border);
+}
+.detail-section-header{
+  padding:12px 16px;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.detail-section-header.before-hdr{
+  background:rgba(0,200,83,.07);
+  border-bottom:1px solid rgba(0,200,83,.2);
+}
+.detail-section-header.inservice-hdr{
+  background:rgba(255,171,0,.07);
+  border-bottom:1px solid rgba(255,171,0,.2);
+}
+.detail-section-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.detail-section-meta{}
+.detail-section-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:2px;
+}
+.before-hdr .detail-section-title{color:var(--green)}
+.inservice-hdr .detail-section-title{color:var(--amber)}
+.detail-section-subtitle{
+  font-size:12px;color:var(--text3);line-height:1.4;
+}
+.detail-section-body{
+  padding:16px 16px;
+  font-size:16px;color:var(--text2);line-height:1.8;
+}
+.detail-section-body strong{color:var(--text1)}
+
+.detail-tags{
+  padding:0 16px 16px;
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;
+}
+
+.detail-nav{
+  display:flex;gap:10px;
+  margin:12px 16px 20px;
+}
+.detail-nav-btn{
+  flex:1;padding:15px 10px;
+  border-radius:12px;border:1px solid var(--border);
+  background:var(--surface);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;transition:all .2s;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;font-weight:700;letter-spacing:.3px;color:var(--text2);
+}
+.detail-nav-btn:active{background:var(--surface2);transform:scale(.97)}
+.detail-nav-btn.disabled{opacity:.3;pointer-events:none}
+
+/* ── FAULT TAGS ───────────────────────────────────────────────────── */
+.fault-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:20px;
+  font-size:12px;font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;
+}
+.tag-stop{background:var(--red-dim);color:var(--red)}
+.tag-continue{background:var(--green-dim);color:var(--green)}
+.tag-limit{background:rgba(255,171,0,.12);color:var(--amber)}
+.tag-nrv{background:var(--blue-dim);color:var(--blue)}
+
+/* ── SCROLLBAR ────────────────────────────────────────────────────── */
+.rules-list{padding:0 16px;display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.rule-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+}
+.rule-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:1px;
+  color:var(--green);margin-bottom:4px;
+}
+.rule-title{font-size:16px;font-weight:700;color:var(--text1);margin-bottom:6px}
+.rule-text{font-size:15px;color:var(--text2);line-height:1.7}
+.rule-text strong{color:var(--text1)}
+
+/* ── PROTECTION SYSTEMS ───────────────────────────────────────────── */
+.prot-card{
+  margin:8px 16px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+}
+.prot-title{font-size:15px;font-weight:700;color:var(--text1);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.prot-row{
+  padding:10px 0;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.prot-row:last-child{border-bottom:none;padding-bottom:0}
+.prot-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.prot-body{}
+.prot-name{font-size:13px;font-weight:700;color:var(--text1);margin-bottom:2px}
+.prot-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* ── SEARCH RESULTS ───────────────────────────────────────────────── */
+#search-results{padding:12px 16px;display:none;flex-direction:column;gap:8px}
+#search-results.show{display:flex}
+.search-result-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  cursor:pointer;transition:border-color .2s;
+}
+.search-result-item:active{border-color:var(--green)}
+.sri-cat{font-size:10px;color:var(--green);font-weight:700;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;margin-bottom:3px}
+.sri-name{font-size:14px;font-weight:700;color:var(--text1);margin-bottom:3px}
+.sri-snippet{font-size:12px;color:var(--text2);line-height:1.4}
+.no-results{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px}
+
+/* ── DSC SCREEN ───────────────────────────────────────────────────── */
+.dsc-card{
+  margin:12px 16px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.dsc-row{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:12px;
+}
+.dsc-row:last-child{border-bottom:none}
+.dsc-phase{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:3px 10px;border-radius:20px;flex-shrink:0;margin-top:2px;
+}
+.phase-before{background:var(--green-dim);color:var(--green)}
+.phase-after{background:rgba(255,171,0,.12);color:var(--amber)}
+.dsc-text{font-size:13px;color:var(--text2);line-height:1.6}
+.dsc-text strong{color:var(--text1)}
+
+/* ── STUDY MODE ───────────────────────────────────────────────────── */
+.study-options{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.study-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:14px;
+}
+.study-card:active{transform:scale(.98)}
+.study-card:hover{border-color:var(--border2)}
+.study-icon-wrap{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.study-body{flex:1}
+.study-title{font-size:15px;font-weight:700;color:var(--text1);margin-bottom:3px}
+.study-desc{font-size:12px;color:var(--text2);line-height:1.4}
+.study-count{
+  font-size:11px;font-weight:700;
+  font-family:'Barlow Condensed',sans-serif;color:var(--text3);
+}
+
+/* Flashcard */
+.flashcard-wrap{padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.flashcard{
+  width:100%;max-width:380px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:32px 24px;text-align:center;
+  cursor:pointer;min-height:220px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:transform .3s;position:relative;overflow:hidden;
+}
+.flashcard.flipped{background:var(--surface2)}
+.flashcard::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--green);
+}
+.fc-side{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  color:var(--green);margin-bottom:12px;text-transform:uppercase;
+}
+.fc-q{font-size:16px;font-weight:700;color:var(--text1);line-height:1.4}
+.fc-a{font-size:14px;color:var(--text2);line-height:1.6;margin-top:8px}
+.fc-hint{font-size:11px;color:var(--text3);margin-top:16px}
+.fc-nav{display:flex;gap:12px;align-items:center;justify-content:center;width:100%;max-width:380px}
+.fc-btn{
+  flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text1);font-family:'Barlow',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.fc-btn.correct{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.fc-btn.wrong{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.fc-btn:active{transform:scale(.96)}
+.fc-progress{
+  width:100%;max-width:380px;
+  background:var(--surface2);border-radius:4px;height:4px;overflow:hidden;
+}
+.fc-progress-fill{height:100%;background:var(--green);transition:width .3s}
+.fc-counter{font-size:12px;color:var(--text3);text-align:center}
+
+/* ── CATEGORY GROUP LABEL ─────────────────────────────────────────── */
+.cat-group-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:var(--text3);text-transform:uppercase;
+  padding:16px 16px 6px;
+  border-top:1px solid var(--border);
+  margin-top:4px;
+}
+.fault-list .cat-group-label:first-child{
+  border-top:none;margin-top:0;padding-top:8px;
+}
+
+/* ── TWO-COLUMN TAB TOGGLE ────────────────────────────────────────── */
+.col-toggle-wrap{
+  display:flex;gap:0;margin:14px 16px 0;
+  background:var(--surface2);border-radius:12px;
+  padding:4px;border:1px solid var(--border);
+}
+.col-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:10px 8px;border-radius:9px;
+  background:none;border:none;cursor:pointer;
+  transition:all .2s;
+}
+.col-tab.active{
+  background:var(--green);
+  box-shadow:0 2px 8px rgba(0,200,83,.3);
+}
+.col-tab-icon{font-size:18px;line-height:1}
+.col-tab-text{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.3px;
+  color:var(--text2);text-align:center;line-height:1.3;
+}
+.col-tab.active .col-tab-text{color:#000}
+
+.col-label-bar{
+  margin:10px 16px 0;padding:10px 14px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+.col-label-text{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:.3px;
+  color:var(--text2);line-height:1.5;
+}
+.col-label-bar.mode-before .col-label-text{color:var(--green)}
+.col-label-bar.mode-inservice .col-label-text{color:var(--amber)}
+
+/* Single-column fault cards ──────────────────────────────────────── */
+.fault-card-body.before-mode,
+.fault-card-body.inservice-mode{
+  padding:12px 16px 14px;
+  border-top:1px solid var(--border);
+}
+.single-col-text{
+  font-size:13px;color:var(--text2);line-height:1.7;
+}
+.single-col-text strong{color:var(--text1)}
+
+/* ── SCROLLBAR ────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+</style>
+</head>
+<style>
+/* ── PASSWORD GATE ────────────────────────────────────────────────── */
+#gate{
+  position:fixed;inset:0;z-index:9999;
+  background:#141414;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px 24px;
+  transition:opacity .4s;
+}
+#gate.hidden{opacity:0;pointer-events:none}
+.gate-logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:48px;font-weight:800;
+  color:#f0f0f0;margin-bottom:4px;letter-spacing:1px;
+}
+.gate-logo span{color:#00c853}
+.gate-sub{
+  font-size:14px;color:#666;margin-bottom:40px;
+  font-family:'Barlow',sans-serif;text-align:center;
+}
+.gate-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:#555;text-transform:uppercase;margin-bottom:10px;
+  align-self:flex-start;width:100%;max-width:320px;
+}
+.gate-input-wrap{
+  width:100%;max-width:320px;
+  display:flex;flex-direction:column;gap:10px;
+}
+#gate-input{
+  width:100%;padding:16px 18px;
+  background:#1e1e1e;border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+  font-family:'Barlow',sans-serif;font-size:18px;
+  color:#f0f0f0;outline:none;letter-spacing:3px;
+  text-align:center;transition:border-color .2s;
+  -webkit-text-security:disc;
+}
+#gate-input:focus{border-color:#00c853}
+#gate-input.error{border-color:#ff3d3d;animation:shake .3s ease}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+#gate-btn{
+  width:100%;max-width:320px;
+  padding:16px;border-radius:14px;
+  background:#00c853;border:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;letter-spacing:.5px;
+  color:#000;cursor:pointer;transition:opacity .2s;
+}
+#gate-btn:active{opacity:.8}
+#gate-error{
+  font-size:13px;color:#ff3d3d;text-align:center;
+  font-family:'Barlow',sans-serif;
+  height:18px;margin-top:4px;transition:opacity .2s;
+}
+.gate-lock{font-size:40px;margin-bottom:16px}
+</style>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-lock">🔒</div>
+  <div class="gate-logo"><span>Drive</span>Ready</div>
+  <div class="gate-sub">Queensland Rail · RTD Reference</div>
+  <div class="gate-label">Access code</div>
+  <div class="gate-input-wrap">
+    <input type="password" id="gate-input" placeholder="••••••••"
+      maxlength="20" autocomplete="off"
+      onkeydown="if(event.key==='Enter')checkPassword()"/>
+    <button id="gate-btn" onclick="checkPassword()">Unlock</button>
+    <div id="gate-error"></div>
+  </div>
+</div>
+
+<script>
+// ── PASSWORD GATE ──────────────────────────────────────────────────────
+// Change this to whatever password you want
+const ACCESS_CODE = 'QR2026';
+const SESSION_KEY = 'dr-auth';
+
+function checkPassword() {
+  const val = document.getElementById('gate-input').value.trim();
+  if (val === ACCESS_CODE) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    const gate = document.getElementById('gate');
+    gate.classList.add('hidden');
+    setTimeout(() => gate.remove(), 400);
+  } else {
+    const input = document.getElementById('gate-input');
+    const err = document.getElementById('gate-error');
+    input.classList.add('error');
+    input.value = '';
+    err.textContent = 'Incorrect code — try again';
+    setTimeout(() => {
+      input.classList.remove('error');
+      err.textContent = '';
+    }, 2000);
+  }
+}
+
+// If already authenticated this session, skip gate immediately
+if (sessionStorage.getItem(SESSION_KEY)) {
+  document.getElementById('gate').remove();
+}
+</script>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header id="header">
+    <button class="header-back" id="back-btn" onclick="goBack()" aria-label="Back">‹</button>
+    <div class="header-title" id="header-title">
+      <span class="header-logo">Drive</span>Ready
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+    </div>
+  </header>
+
+  <!-- SEARCH BAR -->
+  <div id="search-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="search-input" placeholder="Search procedures, faults, rules…" autocomplete="off" oninput="onSearch(this.value)"/>
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- SEARCH RESULTS OVERLAY -->
+    <div id="search-results"></div>
+
+    <!-- ══ HOME ══════════════════════════════════════════════════════ -->
+    <div class="screen active" id="screen-home">
+      <div class="home-hero">
+        <div class="hero-eyebrow">Queensland Rail · RTD Reference</div>
+        <div class="hero-title"><span>Drive</span>Ready</div>
+        <div class="hero-sub">Operational integrity standards & procedures for IMU, SMU &amp; NGR fleets</div>
+        <div class="hero-badge">🟢 MD-10-106 v8.1 · MD-14-38 v16.0</div>
+      </div>
+
+      <div class="section-label">MD-10-106 — Operational Integrity</div>
+      <div class="home-grid">
+        <div class="home-card accent" onclick="showScreen('screen-mandatory')">
+          <div class="card-icon icon-green">📋</div>
+          <div class="card-body">
+            <div class="card-title">Mandatory Requirements</div>
+            <div class="card-sub">What every train must have before entering the network</div>
+          </div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="showScreen('screen-faults')">
+          <div class="card-icon icon-amber">⚠️</div>
+          <div class="card-body">
+            <div class="card-title">Operating Conditions</div>
+            <div class="card-sub">Full Appendix 2 — min requirements &amp; in-service actions</div>
+          </div>
+          <span class="card-count">36 items</span>
+        </div>
+        <div class="home-card" onclick="showScreen('screen-protection')">
+          <div class="card-icon icon-blue">🛡️</div>
+          <div class="card-body">
+            <div class="card-title">Rail Traffic Protection Systems</div>
+            <div class="card-sub">AWS, DSC, ATP, ETCS, Vigilance</div>
+          </div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="showScreen('screen-dsc')">
+          <div class="card-icon icon-red">🔴</div>
+          <div class="card-body">
+            <div class="card-title">Defective DSC</div>
+            <div class="card-sub">Entering service &amp; in-service failure requirements</div>
+          </div>
+          <div class="card-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-label">Study Tools</div>
+      <div class="home-grid" style="padding-bottom:16px">
+        <div class="home-card" onclick="showScreen('screen-study')">
+          <div class="card-icon icon-green">🎯</div>
+          <div class="card-body">
+            <div class="card-title">Study Mode</div>
+            <div class="card-sub">Flashcards &amp; multiple choice from Appendix 2</div>
+          </div>
+          <div class="card-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MANDATORY REQUIREMENTS ═════════════════════════════════════ -->
+    <div class="screen" id="screen-mandatory">
+      <div class="section-hero">
+        <div class="section-hero-eyebrow">MD-10-106 · Section 2.1–2.5</div>
+        <div class="section-hero-title">Mandatory Requirements</div>
+        <div class="section-hero-sub">Baseline conditions all rail traffic must meet before entering the Queensland Rail network</div>
+      </div>
+      <div class="rules-list">
+        <div class="rule-card">
+          <div class="rule-num">2.1 — ALL RAIL TRAFFIC</div>
+          <div class="rule-title">Competent Worker in Charge</div>
+          <div class="rule-text">Rail traffic must have a <strong>Competent Worker</strong> — the Rail Traffic Driver or Competent Worker in Charge — who is responsible for the safe movement of rail traffic. The train must be operated safely and must not exceed the safeworking authority.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.1 — ALL RAIL TRAFFIC</div>
+          <div class="rule-title">RTC / NCO Communication System</div>
+          <div class="rule-text">The <strong>Rail Traffic Crew / Network Control Officer communication system</strong> must be functioning correctly before the train enters the network.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL (EXCL. CITYTRAIN UNITS)</div>
+          <div class="rule-title">Brake Pipe Continuity</div>
+          <div class="rule-text">The <strong>brake pipe (or equivalent system)</strong> must be continuous throughout the train.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Main Reservoir Pressure</div>
+          <div class="rule-text">The <strong>compressed air main reservoir supply system</strong> must maintain pressure within the defined limits for the rollingstock.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Inter-car Gangways</div>
+          <div class="rule-text"><strong>Inter-car gangways and canopies</strong> (if fitted) on passenger rollingstock must be secured.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Event Recorder / JRU</div>
+          <div class="rule-text">If the event recorder or Juridical Recording Unit (JRU) is found faulty, the train may enter or continue in traffic but the condition <strong>must be reported before each entry into service</strong> and as soon as reasonably practicable after discovery.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Handbrakes / Park Brakes</div>
+          <div class="rule-text"><strong>Handbrakes or park brakes</strong> must be functional and released except where specified.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Brake System &amp; Cab Instrumentation</div>
+          <div class="rule-text">The <strong>brake system, instrumentation (including instrumentation lighting) and cab lighting</strong> at the operating driving station must be functioning correctly.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Draw Gear / Couplers</div>
+          <div class="rule-text"><strong>Draw gear/couplers</strong> must be coupled correctly and secure. All rail traffic must be correctly set up with hoses and cables correctly coupled.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Defective Vehicle — RTD Obligations</div>
+          <div class="rule-text">If the RTD becomes aware that one or more vehicles <strong>may be defective</strong>, the crew must: <strong>(1)</strong> Stop if necessary and tell the NCO. <strong>(2)</strong> If required, protect the rail traffic. <strong>(3)</strong> Inspect for fault or failure, or arrange for inspection.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Speed Indicator</div>
+          <div class="rule-text"><strong>Entering service:</strong> Must function at the operating driving station. <strong>En route:</strong> If defective or inaccurate, advise NCO. At RTD's discretion ensure permissible speeds not exceeded. Continue to: (a) re-marshal at first suitable location, (b) repair/replace, or (c) work out of service.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Headlights</div>
+          <div class="rule-text"><strong>Entering service:</strong> Headlight must function on the leading driving cab. <strong>En route:</strong> If headlight fails, observe procedures in SG 8.6 of Observance of Signals Manual MD-10-109.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Visibility Lights</div>
+          <div class="rule-text"><strong>Entering service:</strong> Visibility lights (where fitted) must function on the leading driving cab. <strong>En route:</strong> If failed on leading cab, treat as headlight only — refer SG8.4 and SG8.5 of MD-10-109.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Whistles / Horns</div>
+          <div class="rule-text"><strong>Entering service:</strong> Must function on leading driving cab. <strong>En route:</strong> If failed, may continue at controlled speed to nearest depot or station for repairs. NCO must be told as soon as practicable.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Marker Lights &amp; Tail Lights</div>
+          <div class="rule-text"><strong>Entering service:</strong> Must function. <strong>En route:</strong> If defective, must be repaired or replaced as soon as possible — refer SG 8.3 of MD-10-109.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.3 — GENERAL</div>
+          <div class="rule-title">Windscreens</div>
+          <div class="rule-text"><strong>Entering service:</strong> Leading windscreen must not impede RTD's vision. <strong>En route:</strong> If cracked/broken and posing a risk, may proceed at controlled speed to a repair location or re-marshal the unit away from lead.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-num">2.5 — PASSENGER TRAIN UNITS</div>
+          <div class="rule-title">Automatic Train Brake System</div>
+          <div class="rule-text">The automatic train brake system must be functional — brakes must apply and release correctly at all times. A <strong>pre-departure test</strong> of the brake system must be carried out whenever a train is (a) marshalled for departure, (b) has an interruption to brake pipe continuity, or (c) parked unattended for more than <strong>2 hours</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ OPERATING CONDITIONS — INDEX LIST ══════════════════════════ -->
+    <div class="screen" id="screen-faults">
+      <div class="section-hero">
+        <div class="section-hero-eyebrow">MD-10-106 · Appendix 2</div>
+        <div class="section-hero-title">Operating Conditions</div>
+        <div class="section-hero-sub">Tap any item to view both maintenance requirements and in-service actions</div>
+      </div>
+      <div class="pills-wrap" id="cat-pills">
+        <div class="pill active" onclick="filterCat('all',this)">All</div>
+        <div class="pill" onclick="filterCat('general',this)">General</div>
+        <div class="pill" onclick="filterCat('comms',this)">Communications</div>
+        <div class="pill" onclick="filterCat('braking',this)">Braking</div>
+        <div class="pill" onclick="filterCat('cab',this)">Cab — Other</div>
+        <div class="pill" onclick="filterCat('onboard',this)">Onboard Systems</div>
+        <div class="pill" onclick="filterCat('lighting',this)">Lighting</div>
+        <div class="pill" onclick="filterCat('other',this)">Onboard Other</div>
+        <div class="pill" onclick="filterCat('safety',this)">Safety Systems</div>
+      </div>
+      <div class="fault-index" id="fault-list"></div>
+    </div>
+
+    <!-- ══ FAULT DETAIL PAGE ══════════════════════════════════════════ -->
+    <div class="screen" id="screen-fault-detail">
+      <div id="fault-detail-content"></div>
+    </div>
+
+    <!-- ══ PROTECTION SYSTEMS ══════════════════════════════════════════ -->
+    <div class="screen" id="screen-protection">
+      <div class="section-hero">
+        <div class="section-hero-eyebrow">MD-10-106 · Section 2.6</div>
+        <div class="section-hero-title">Rail Traffic Protection Systems</div>
+        <div class="section-hero-sub">Every train must have at least one signal system support AND one driver alertness support</div>
+      </div>
+
+      <div class="prot-card">
+        <div class="prot-title">🛡️ Required Combination</div>
+        <div class="prot-row">
+          <div class="prot-icon">📡</div>
+          <div class="prot-body">
+            <div class="prot-name">Signal System Support</div>
+            <div class="prot-desc">Must be one of: <strong>AWS (Automatic Warning System)</strong> or <strong>Station Protection</strong></div>
+          </div>
+        </div>
+        <div class="prot-row">
+          <div class="prot-icon">👁️</div>
+          <div class="prot-body">
+            <div class="prot-name">Driver Alertness Support</div>
+            <div class="prot-desc">Must be one of: <strong>Vigilance</strong> or <strong>DSC (Driver Safety Control)</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prot-card">
+        <div class="prot-title">🔒 Systems Requiring Full Operability (Appendix 2)</div>
+        <div class="prot-row">
+          <div class="prot-icon">🇪🇺</div>
+          <div class="prot-body">
+            <div class="prot-name">ETCS — European Train Control System</div>
+            <div class="prot-desc">If fitted, must be operational in each driving cab</div>
+          </div>
+        </div>
+        <div class="prot-row">
+          <div class="prot-icon">🚦</div>
+          <div class="prot-body">
+            <div class="prot-name">ATP — Automatic Train Protection</div>
+            <div class="prot-desc">If fitted, must be operational in the leading driving cab</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prot-card">
+        <div class="prot-title">⚡ En Route — If System Fails</div>
+        <div class="prot-row">
+          <div class="prot-icon">🔄</div>
+          <div class="prot-body">
+            <div class="prot-name">Exception: ATP Mode Available</div>
+            <div class="prot-desc">If ATP is available in ATP Mode, the en-route failure rule does not apply</div>
+          </div>
+        </div>
+        <div class="prot-row">
+          <div class="prot-icon">📍</div>
+          <div class="prot-body">
+            <div class="prot-name">If Signal System Support OR Driver Alertness Support Fails En Route</div>
+            <div class="prot-desc">RTD is permitted to proceed to the <strong>next station with suitable refuge facilities</strong> until a second route-competent person is available. Note: For AWS failure in the Brisbane Suburban Area (BSA), another RTC member may perform the duties of the second person.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DEFECTIVE DSC ════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-dsc">
+      <div class="section-hero">
+        <div class="section-hero-eyebrow">MD-10-106 · Section 2.7</div>
+        <div class="section-hero-title">Defective DSC</div>
+        <div class="section-hero-sub">Driver Safety Control failure — entering service vs in-service requirements</div>
+      </div>
+      <div class="dsc-card">
+        <div class="dsc-row">
+          <div class="dsc-phase phase-before">ENTERING SERVICE</div>
+          <div class="dsc-text">The <strong>Driver Safety Control (DSC) must be in place and operating</strong> before the train enters service. A defective DSC is a barrier to entering the network.</div>
+        </div>
+        <div class="dsc-row">
+          <div class="dsc-phase phase-after">IN SERVICE</div>
+          <div class="dsc-text">If the DSC becomes defective in service: <strong>(1)</strong> The Train Unit must <strong>terminate at the next station</strong>. <strong>(2)</strong> The train must then travel as a <strong>non-revenue service</strong> to a maintenance facility.</div>
+        </div>
+      </div>
+      <div class="info-banner" style="margin-top:0">
+        <span class="bi">ℹ</span>
+        <p>Refer also to the full <strong>Driver Safety Control</strong> row in Operating Conditions (Appendix 2) for the detailed in-service procedure including Guard travelling in the driving cab.</p>
+      </div>
+    </div>
+
+    <!-- ══ STUDY MODE ══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-study">
+      <div class="section-hero">
+        <div class="section-hero-eyebrow">Study Mode</div>
+        <div class="section-hero-title">Test Your Knowledge</div>
+        <div class="section-hero-sub">Based on MD-10-106 Appendix 2 — Operating Conditions</div>
+      </div>
+      <div class="study-options" style="padding-top:12px">
+        <div class="study-card" onclick="startFlashcards()">
+          <div class="study-icon-wrap icon-green">🃏</div>
+          <div class="study-body">
+            <div class="study-title">Flashcards</div>
+            <div class="study-desc">Flip between item name and in-service action. Mark correct or review again.</div>
+            <div class="study-count" style="margin-top:4px">36 cards · Operating Conditions</div>
+          </div>
+        </div>
+        <div class="study-card" onclick="startMCQ()">
+          <div class="study-icon-wrap icon-amber">❓</div>
+          <div class="study-body">
+            <div class="study-title">Multiple Choice</div>
+            <div class="study-desc">Fault scenario → select the correct action from 4 options.</div>
+            <div class="study-count" style="margin-top:4px">Coming in Pass 3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FLASHCARD PLAYER ════════════════════════════════════════════ -->
+    <div class="screen" id="screen-flashcards">
+      <div class="flashcard-wrap" id="fc-wrap"></div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav id="nav">
+    <button class="nav-item active" id="nav-home" onclick="navTo('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Home</div>
+    </button>
+    <button class="nav-item" id="nav-faults" onclick="navTo('faults')">
+      <div class="nav-icon">⚠️</div>
+      <div class="nav-label">Conditions</div>
+    </button>
+    <button class="nav-item" id="nav-mandatory" onclick="navTo('mandatory')">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">Rules</div>
+    </button>
+    <button class="nav-item" id="nav-study" onclick="navTo('study')">
+      <div class="nav-icon">🎯</div>
+      <div class="nav-label">Study</div>
+    </button>
+  </nav>
+
+  <!-- PWA INSTALL BANNER -->
+  <div id="install-banner">
+    <div class="install-icon">🚆</div>
+    <div class="install-body">
+      <div class="install-title">Install DriveReady</div>
+      <div class="install-sub">Add to home screen for offline access</div>
+    </div>
+    <button class="install-btn" onclick="triggerInstall()">Install</button>
+    <button class="install-close" onclick="dismissInstall()">✕</button>
+  </div>
+
+</div>
+
+<script>
+// ── THEME ──────────────────────────────────────────────────────────────
+let theme = localStorage.getItem('dr-theme') || 'dark';
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-btn').textContent = theme === 'dark' ? '☀' : '🌙';
+}
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('dr-theme', theme);
+  applyTheme();
+}
+applyTheme();
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────
+let screenStack = ['home'];
+const screenTitles = {
+  home: '<span style="color:var(--green)">Drive</span>Ready',
+  mandatory: 'Mandatory Requirements',
+  faults: 'Operating Conditions',
+  'fault-detail': 'Operating Conditions',
+  protection: 'Protection Systems',
+  dsc: 'Defective DSC',
+  study: 'Study Mode',
+  flashcards: 'Flashcards',
+};
+function showScreen(id) {
+  const key = id.replace('screen-','');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  screenStack.push(key);
+  updateHeader();
+  document.getElementById('main').scrollTop = 0;
+}
+function goBack() {
+  if (screenStack.length <= 1) return;
+  screenStack.pop();
+  const prev = screenStack[screenStack.length - 1];
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + prev).classList.add('active');
+  updateHeader();
+  document.getElementById('main').scrollTop = 0;
+}
+function updateHeader() {
+  const cur = screenStack[screenStack.length - 1];
+  document.getElementById('header-title').innerHTML = screenTitles[cur] || cur;
+  const backBtn = document.getElementById('back-btn');
+  if (cur === 'home') {
+    backBtn.classList.remove('show');
+  } else {
+    backBtn.classList.add('show');
+  }
+  // Update nav active
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = {home:'nav-home', faults:'nav-faults', mandatory:'nav-mandatory', study:'nav-study'};
+  if (navMap[cur]) document.getElementById(navMap[cur]).classList.add('active');
+}
+function navTo(key) {
+  screenStack = ['home'];
+  if (key !== 'home') screenStack.push(key);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + (key === 'home' ? 'home' : key)).classList.add('active');
+  updateHeader();
+  document.getElementById('main').scrollTop = 0;
+}
+
+// ── FAULT DATA (APPENDIX 2) ────────────────────────────────────────────
+const FAULTS = [
+  // GENERAL
+  { id:'f1', cat:'general', name:'Serviceability Certificate', severity:'critical',
+    before:'A current serviceability certificate must be displayed on each unit.',
+    inservice:'A current serviceability certificate must be displayed on each unit.',
+    inservice_tags:['critical'] },
+  { id:'f2', cat:'general', name:'Train Preparation Certificate', severity:'critical',
+    before:'A current train unit preparation certificate (MD-14-514 / MD-17-458) must be displayed on each unit.',
+    inservice:'A current train unit preparation certificate must be displayed on each unit.',
+    inservice_tags:['critical'] },
+  // COMMUNICATIONS
+  { id:'f3', cat:'comms', name:'PA System', severity:'caution',
+    before:'The Public Address System must be operational.',
+    inservice:'If PA is not operational in a carriage, that carriage must be locked. If the entire PA system is non-operational, the train may continue in service but must be removed from service as early as practicable. Train must finish operational day\'s service at a location determined by the RMC. Consideration must be given to customers with disabilities.',
+    inservice_tags:['continue','limit'] },
+  { id:'f4', cat:'comms', name:'Cab to Cab Intercom', severity:'caution',
+    before:'The Cab to Cab intercom must be operational.',
+    inservice:'Train may continue in service but must be removed from service as early as practicable. Guard must work from a cab where communication with the driver is possible — including by handheld radios. Train must finish operational day\'s service at a location determined by the RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f5', cat:'comms', name:'Rightaway Bells', severity:'caution',
+    before:'The rightaway bell system must be operational (all bells and buttons).',
+    inservice:'Guard must be able to give rightaway from a cab with operational rightaway bells, unless rightaway can be provided verbally in person or via cab to cab intercom. If entirely non-operational, train may continue in service but must be removed from service as early as practicable.',
+    inservice_tags:['continue','limit'] },
+  { id:'f6', cat:'comms', name:'Passenger Emergency (PE) System', severity:'critical',
+    before:'The PE system must be operational.',
+    inservice:'If the entire PE system is not operational, the train must TERMINATE at the next station and travel as a non-revenue service to a location determined by the RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f7', cat:'comms', name:'Passenger Emergency Intercom (PEI)', severity:'critical',
+    before:'The PEI system must be operational.',
+    inservice:'If PEI is not operational in a carriage, that carriage must be locked. If the entire PEI system is not operational, the train must TERMINATE at the next station and travel as a non-revenue service to a location determined by the RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f8', cat:'comms', name:'Door Closing Announcement System', severity:'critical',
+    before:'Must be operational. Door Closing announcements are controlled in each vestibule — if found faulty a vestibule can be isolated and impacted doors locked to allow unit to enter service.',
+    inservice:'If completely non-operational at a stabling facility, train must not enter revenue service. If it becomes completely non-operational in service, train must TERMINATE at the next station and travel as a non-revenue service to a location determined by the RMC. Individual vestibule faults: isolate vestibule and lock impacted doors.',
+    inservice_tags:['stop','nrv'] },
+  // BRAKING
+  { id:'f9', cat:'braking', name:'Braking System', severity:'critical',
+    before:'Train brake system must be functional — brakes must apply and release correctly at all times.',
+    inservice:'If non-functional or brakes do not apply/release correctly, train must IMMEDIATELY STOP. Train must not travel unless authorised by the ISST (NGR) or RDC (QR Fleet) via train control radio or recorded phone. If authorised, must travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f10', cat:'braking', name:'Continuous Brake (Brake Pipe)', severity:'critical',
+    before:'Brake pipe must be continuous throughout the train.',
+    inservice:'Train must not travel unless authorised by ISST (NGR) or RDC (QR Fleet). If authorised, must travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f11', cat:'braking', name:'Compressor (Main Reservoir Supply)', severity:'critical',
+    before:'Compressed air main reservoir supply system must maintain pressure within defined limits.',
+    inservice:'Train must not travel unless authorised by ISST (NGR) or RDC (QR Fleet). If authorised, must travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f12', cat:'braking', name:'Park Brakes', severity:'critical',
+    before:'All park brakes must be operational.',
+    inservice:'Train must not travel unless authorised by ISST (NGR) or RDC (QR Fleet). If authorised, must travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f13', cat:'braking', name:'Main Reservoir Pipe', severity:'critical',
+    before:'Main reservoir pipe must be continuous between air supply and all rollingstock, including when towing or being towed.',
+    inservice:'Train must not travel unless authorised by ISST (NGR) or RDC (QR Fleet). If authorised, must travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f14', cat:'braking', name:'Continuity Test', severity:'critical',
+    before:'Continuity of train brake system must be tested and comply with MD-10-215. A continuity test must be carried out whenever a train has an interruption to brake pipe continuity, or has been parked unattended for more than 2 hours.',
+    inservice:'If non-compliant, train must not travel unless authorised by ISST (NGR) or RDC (QR Fleet). If authorised, must travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f15', cat:'braking', name:'Isolated Brakes', severity:'critical',
+    before:'First and last carriage of any consist must have at least one bogie with functioning brakes (max one bogie per end car can be cut out). In any consist, no more than two adjacent bogies shall have brakes cut out.',
+    inservice:'Same rule applies in service. General Appendix has additional requirements for braking when towing.',
+    inservice_tags:['limit'] },
+  { id:'f16', cat:'braking', name:'Braking Performance', severity:'critical',
+    before:'Train must be capable of: being controlled on gradients (sufficient braking capacity, achievable with no more than two-thirds full service brake without electric braking), stopping at a stop signal, stopping at a permanent way stop signal, and being held at any given point using park brake only.',
+    inservice:'If defective and in driver\'s view poses a risk, train must IMMEDIATELY STOP. Must not travel unless authorised by ISST (NGR) or RDC (QR Fleet). If authorised, non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f17', cat:'braking', name:'Emergency Cock', severity:'critical',
+    before:'All emergency cocks must be operational.',
+    inservice:'If non-operational at stabling facility: train must not enter revenue service. If becomes non-operational in service: train must TERMINATE at next station and travel as non-revenue service to location determined by RMC. If fault cannot be rectified, train must travel to maintenance facility at restricted speed.',
+    inservice_tags:['stop','nrv','limit'] },
+  // CAB OTHER
+  { id:'f18', cat:'cab', name:'Dirty or Obscured Windscreen', severity:'caution',
+    before:'Both drivers cab windscreens must not impede RTC\'s vision.',
+    inservice:'If dirty/obstructed and poses a risk, train must proceed at controlled speed to location determined by RMC, or be operated from a non-affected cab.',
+    inservice_tags:['limit'] },
+  { id:'f19', cat:'cab', name:'Cracked or Broken Windscreen', severity:'critical',
+    before:'Both windscreens must not impede vision. No train may enter service if windscreen is cracked or broken and poses a risk.',
+    inservice:'If poses a risk: proceed at controlled speed to location determined by RMC, or operate from non-affected cab. If cracked/broken but does NOT pose a risk: train must finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['limit','continue'] },
+  { id:'f20', cat:'cab', name:'Windscreen Wiper & Washers', severity:'caution',
+    before:'Must be operational in each leading cab.',
+    inservice:'Train may continue in service but must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC. If windscreen becomes dirty/vision obstructed (including by water) posing a risk: proceed at controlled speed to location determined by RMC or operate from non-affected cab.',
+    inservice_tags:['continue','limit'] },
+  { id:'f21', cat:'cab', name:'Mirrors', severity:'caution',
+    before:'All mirrors in driving cabs must be intact and effective.',
+    inservice:'Train may continue in service but must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f22', cat:'cab', name:'RTC Display Screens (HMI / Fault Screens)', severity:'critical',
+    before:'All RTC display screens including HMI Screens/Fault Screens must be operational in driving cabs. Communication Screens must be operational in all cabs.',
+    inservice:'If HMI-S Screen fails on NGR: train must TERMINATE at next station and travel as non-revenue service. If any other RTC display screen is not operational: either Driver or Guard must be able to view each type of screen — if so, train may continue that day but must finish at location determined by RMC. If neither can view each type of screen: train must TERMINATE at next station and travel as non-revenue service.',
+    inservice_tags:['stop','nrv','continue','limit'] },
+  { id:'f23', cat:'cab', name:'ETCS Driver Machine Interface (DMI)', severity:'critical',
+    before:'Both DMI screens must be operational in driving cabs.',
+    inservice:'If one DMI screen fails: train may continue in service but must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC. If both DMI screens in a driving cab fail: train must TERMINATE at next station and travel as non-revenue service.',
+    inservice_tags:['continue','limit','stop','nrv'] },
+  { id:'f24', cat:'cab', name:'Door Open Tile Light', severity:'critical',
+    before:'Must be operational in each driving cab.',
+    inservice:'If non-operational: train must TERMINATE at next station and travel as non-revenue service to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f25', cat:'cab', name:'Drivers Door Display Unit (DDDU)', severity:'caution',
+    before:'Must be operational in each driving cab.',
+    inservice:'If indicates a fault: lock the door the light pertains to. Train may continue in service that day but must finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  // ONBOARD SYSTEMS
+  { id:'f26', cat:'onboard', name:'Event Recorders & JRU (Juridical Recording Unit)', severity:'caution',
+    before:'For rollingstock fitted with an event recorder or JRU, it must be operational.',
+    inservice:'Rollingstock may continue in traffic with faulty event recorder or JRU but must finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f27', cat:'onboard', name:'Speed Indicator', severity:'critical',
+    before:'Primary speed indicator must be functional at each driving cab. At least one speed indicator in a non-driving cab must be functional.',
+    inservice:'If primary speed indicator in driving cab not functioning: train must not proceed as revenue service beyond city stations and must return to location determined by RMC. Report to NCO. If second RTC member available: reduce speed to 75% of allowable and have second RTC give regular speed updates. If no second RTC/speed indicator: reduce speed to 75% of allowable (measurable by time against km signs).',
+    inservice_tags:['limit','stop'] },
+  { id:'f28', cat:'onboard', name:'Digital Video Recorder (DVR)', severity:'caution',
+    before:'Must be operational.',
+    inservice:'If not operational: train may continue to its destination then travel as non-revenue service to location determined by RMC. For NGR: if one DVR fails — train may continue in service for that day but finish at location determined by RMC. If both DVRs fail — train may continue to its destination then travel as non-revenue service.',
+    inservice_tags:['continue','nrv'] },
+  { id:'f29', cat:'onboard', name:'CCTV', severity:'critical',
+    before:'The internal, forward facing and external/side (NGR only) CCTV must be fully operational.',
+    inservice:'If internal or forward facing CCTV not operational: train may continue in service for that day but must finish operational day\'s service at location determined by RMC. If external/side CCTV (NGR only) not operational (not able to be viewed from Guard\'s cab on both sides in at least one direction): train must TERMINATE at next station and travel as non-revenue service.',
+    inservice_tags:['continue','limit','stop','nrv'] },
+  // LIGHTING
+  { id:'f30', cat:'lighting', name:'Headlight', severity:'critical',
+    before:'Headlight must function (both Low and High beam) on both driving cabs.',
+    inservice:'If both headlights not functional in direction of travel and train cannot be remarshalled or operated from other end: If visibility lights functioning — train must not work as revenue service beyond city stations, return at controlled speed to location determined by RMC. If visibility lights NOT functioning — obtain authority from NCO and proceed as non-revenue service at restricted speed. All exterior lights must be turned on. Whistle/horn must be sounded approaching platforms, tunnels, pedestrian crossings and level crossings. If either headlight is operational: train may continue in service but finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['stop','limit','nrv'] },
+  { id:'f31', cat:'lighting', name:'Visibility Lights', severity:'caution',
+    before:'Visibility lights (where fitted) must be operational on both driving cabs.',
+    inservice:'If one or more visibility lights not operational on leading cab: headlight must be switched on at all times. Train may continue in service but must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f32', cat:'lighting', name:'Marker Lights & Tail Lights', severity:'caution',
+    before:'Marker lights and tail lights must be operational on both driving cabs.',
+    inservice:'If a marker light or single tail light not working: train may continue in service for that day but must finish operational day\'s service at location determined by RMC. If BOTH tail lights not working at stabling facility: train must not enter service. If both tail lights fail in service: train must not proceed as revenue service beyond city stations and must return to location determined by RMC.',
+    inservice_tags:['continue','limit','stop'] },
+  { id:'f33', cat:'lighting', name:'Instrument & Gauge Lighting', severity:'caution',
+    before:'All instrument and gauge lights must be operational on all driving cabs.',
+    inservice:'If becomes faulty during travel: advise NCO. At RTD\'s discretion train may continue in service but must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f34', cat:'lighting', name:'Cab and Saloon Lighting', severity:'caution',
+    before:'Cab lighting and 75% of saloon lights in each carriage must be operational.',
+    inservice:'Any carriage with less than 75% saloon lights must be locked. If cab lighting not operational: at RTD\'s discretion train may continue in service but must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  // ONBOARD OTHER
+  { id:'f35', cat:'other', name:'Sanding', severity:'caution',
+    before:'A unit fitted with sanding equipment must have the sanding system operational on both sides of the leading and trailing cars (car 1 and 3 on a 3-car consist; car 1 and 6 on a 6-car consist).',
+    inservice:'If sanding not operational on both sides of leading and trailing cars, train may continue in service with restrictions: (1) Must be travelling at or below 50% of designated track/traction speed at point of passing a Single Yellow aspect signal. (2) Must be travelling at or below 50% of designated track/traction speed at point of passing a Flashing Yellow aspect signal, up to max 40km/h. (3) If RTC crew change occurs, non-operational sanding state must be effectively communicated. Train must finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f36', cat:'other', name:'Inter-car Gangways & Canopies', severity:'caution',
+    before:'Inter-car gangways and canopies must be secured.',
+    inservice:'If not secured, affected carriages must be locked.',
+    inservice_tags:['limit'] },
+  { id:'f37', cat:'other', name:'Coupling', severity:'critical',
+    before:'Rail traffic must be correctly coupled, set up, with hoses and cables correctly coupled.',
+    inservice:'Rail traffic must be correctly coupled, set up, with hoses and cables correctly coupled.',
+    inservice_tags:['critical'] },
+  { id:'f38', cat:'other', name:'Windows', severity:'critical',
+    before:'All rail traffic windows must not be cracked or broken, posing a risk to the train, RTC or the public.',
+    inservice:'If a window becomes cracked or broken and poses a risk: carriage must be locked to the public. Train must travel at controlled speed until it can terminate and clear the mainline. RTC must report fault to RDC/ISST and assess the risk to determine if maintenance personnel must inspect before travelling to location determined by RMC.',
+    inservice_tags:['limit','stop'] },
+  { id:'f39', cat:'other', name:'Emergency Equipment', severity:'critical',
+    before:'Emergency equipment must be present and operational as defined in the General Appendix.',
+    inservice:'If not present and operational at stabling facility: train must not leave to enter service. If found not present/operational once in service: train must not work as revenue service beyond city stations and must return to location determined by RMC.',
+    inservice_tags:['stop','limit'] },
+  { id:'f40', cat:'other', name:'Fire Extinguisher', severity:'critical',
+    before:'All fire extinguishers must be sealed, intact and in date. NGR: all cab fire extinguishers in cabs must be sealed, intact and in date.',
+    inservice:'If any fire extinguisher is used while train is in service: use must be reported to RDC/ISST. Train must not work as revenue service beyond city stations and must return to location determined by RMC.',
+    inservice_tags:['stop','limit'] },
+  { id:'f41', cat:'other', name:'Pantograph', severity:'critical',
+    before:'All pantographs must be fully operational.',
+    inservice:'If a single pantograph not operational on a 6-car consist: affected pantograph must be lowered and unit locked (Note: NGR units do not need to have the unit locked). At discretion of NCO and RDC/ISST, train may continue in service but must not work as revenue service beyond city stations and must return to location determined by RMC.',
+    inservice_tags:['limit','stop'] },
+  { id:'f42', cat:'other', name:'Traction Motors', severity:'caution',
+    before:'At the discretion of the RDC/ISST a train may enter service with convertor or traction motors cut out.',
+    inservice:'At the discretion of the RDC/ISST a train may continue in service with convertors or traction motors cut out.',
+    inservice_tags:['continue'] },
+  { id:'f43', cat:'other', name:'Cow-catcher / NGR Nose Cone & Obstacle Deflector', severity:'critical',
+    before:'All cow-catchers must be fitted and secured. NGR nose cone and obstacle deflector must be fitted and secured.',
+    inservice:'If cow-catcher not fitted/secured: train must TERMINATE at next station and travel as non-revenue service at controlled speed to location determined by RMC. Same applies if NGR nose cone and obstacle deflector not fitted/secured.',
+    inservice_tags:['stop','nrv','limit'] },
+  { id:'f44', cat:'other', name:'Airbags', severity:'caution',
+    before:'Airbags inflated and operational.',
+    inservice:'For all instances of collapsed airbag(s): train must not proceed as revenue service beyond city stations and must return to location determined by RMC with speed restrictions applied — EMU maximum 60km/h, all other rollingstock maximum 80km/h.',
+    inservice_tags:['stop','limit'] },
+  { id:'f45', cat:'other', name:'Crew Steps', severity:'caution',
+    before:'All crew steps must be present and not defective.',
+    inservice:'If missing or defective: train must not work as revenue service beyond city stations and must return to location determined by RMC. If RTC crew change occurs, non-operational state must be effectively communicated.',
+    inservice_tags:['stop','limit'] },
+  { id:'f46', cat:'other', name:'Air Conditioner / Heaters', severity:'caution',
+    before:'Air conditioning must be operational in each driving cab. Heaters must be operational in each driving cab when required. Any carriage with no air conditioning must be locked.',
+    inservice:'Any carriage with defective air conditioning must be locked. If faulty in an occupied driver\'s or guard\'s cab: at RTD\'s discretion may continue in service but must be removed as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f47', cat:'other', name:'Train Horn', severity:'critical',
+    before:'Train horn (town and country) must be operational in driving cabs.',
+    inservice:'If both train horns on leading cab are not operational: train must travel as non-revenue service to location determined by RMC at controlled speed. NCO must be told of any train horn failure.',
+    inservice_tags:['stop','nrv','limit'] },
+  { id:'f48', cat:'other', name:'Doors (Passenger, Crew, Inter-car)', severity:'critical',
+    before:'All external passenger, crew and inter-car doors should be operational. However, a unit may enter service with a maximum of 1 passenger door isolated (NGR: max 2 passenger doors). Defective doors must be isolated, locked (if required by unit type) and marked defective.',
+    inservice:'A single door may be isolated with no restrictions (NGR: 2 doors with no restrictions). 160/260: if both passenger doors on same side of a carriage require isolation, entire 3-car unit must be closed to public. Non-160/260: if both doors on same side of carriage require isolation, carriage must be locked out of service. If additional door requires isolation: train must not work as revenue service beyond city stations.',
+    inservice_tags:['limit','stop'] },
+  { id:'f49', cat:'other', name:'AVP Modified (NGR) Toilet Doors', severity:'critical',
+    before:'Both toilet doors must be operational.',
+    inservice:'If a toilet door becomes unpowered: passengers directed to alternate carriages and carriage containing unpowered toilet door isolated. Train must not work as revenue service beyond city stations and must return to location determined by RMC.',
+    inservice_tags:['stop','limit'] },
+  // SAFETY SYSTEMS
+  { id:'f50', cat:'safety', name:'Driver Safety Control (DSC)', severity:'critical',
+    before:'All Driver Safety Controls (DSC — Foot and Hand) must be operational in each leading cab. NGR: DSC foot pedal rest must be operational in each cab.',
+    inservice:'If DSC in driving cab becomes defective: Guard must travel in the driving cab and train must TERMINATE at next station and travel as non-revenue service to location determined by RMC. If DSC foot pedal rest in driving cab becomes defective and is impacting DSC operation: Guard must travel in the driving cab and train must TERMINATE at next station and travel as non-revenue service.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f51', cat:'safety', name:'Vigilance', severity:'critical',
+    before:'Vigilance (if fitted) must be operational in each leading cab.',
+    inservice:'If not operational: Guard must travel in the leading driving cab and train must not work as revenue service beyond city stations. Must return to location determined by RMC.',
+    inservice_tags:['stop','limit'] },
+  { id:'f52', cat:'safety', name:'Automatic Warning System (AWS)', severity:'critical',
+    before:'AWS must be operational in each leading driving cab.',
+    inservice:'If found not operational at stabling facility: train must not enter revenue service. Must proceed to location determined by RMC with an additional route competent RTC in the leading cab. If becomes not operational in revenue service: Guard must travel in the leading driving cab and train must not work as revenue service beyond city stations. Must return to location determined by RMC. Note: AWS is considered not operational if it fails to operate or a malfunction occurs on a GREEN or RESTRICTED signal.',
+    inservice_tags:['stop','limit'] },
+  { id:'f53', cat:'safety', name:'Automatic Train Protection (ATP)', severity:'critical',
+    before:'ATP if fitted must be operational in the leading driving cab or operated with a driver and second Competent Worker. Train may depart maintenance facility if trailing cab ATP is not operational, but train must be turned for return journey or operated with a driver and second Competent Worker.',
+    inservice:'If ATP not operational: train may continue in service but must not work as revenue service beyond city stations. Must return to location determined by RMC. If operating in ATP wayside equipped territory: train must have a Second Competent Worker in the leading driving cab in accordance with ATP Manual MD-10-117.',
+    inservice_tags:['continue','limit'] },
+  { id:'f54', cat:'safety', name:'European Train Control System (ETCS)', severity:'critical',
+    before:'ETCS if fitted must be operational in each driving cab.',
+    inservice:'If not operational in driving cabs prior to leaving stabling facility: train must not enter revenue service and must proceed as non-revenue service to location determined by RMC. If becomes not operational in revenue service: train must not work as revenue service beyond city stations and must return to location determined by RMC.',
+    inservice_tags:['stop','nrv'] },
+  { id:'f55', cat:'safety', name:'Cab Seat', severity:'caution',
+    before:'All cab seats must be in a safe and serviceable condition in all driving cabs and all other operating cabs.',
+    inservice:'If becomes faulty/unsafe/unserviceable: may only continue in service at RTD\'s discretion. Must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+  { id:'f56', cat:'cab', name:'Window Blinds', severity:'caution',
+    before:'All window blinds in driving cabs must be in a safe and serviceable condition. All side blinds in other operating cabs must be in safe and serviceable condition.',
+    inservice:'If becomes faulty/unsafe/unserviceable: may only continue in service at RTD\'s discretion. Must be removed from service as early as practicable. Finish operational day\'s service at location determined by RMC.',
+    inservice_tags:['continue','limit'] },
+];
+
+let activeTab = 'before'; // kept for flashcard compat
+let activeCat = 'all';
+
+const COL_LABELS = {};
+
+const CAT_LABELS = {
+  general: 'GENERAL',
+  comms: 'COMMUNICATIONS',
+  braking: 'BRAKING SYSTEM',
+  cab: 'CAB — OTHER',
+  onboard: 'ONBOARD SYSTEMS',
+  lighting: 'LIGHTING',
+  other: 'ONBOARD — OTHER',
+  safety: 'TRAIN SAFETY SYSTEMS'
+};
+
+const CAT_ORDER = ['general','comms','braking','cab','onboard','lighting','other','safety'];
+
+let currentFaultId = null;
+let filteredFaultIds = [];
+
+const TAGS = {
+  critical: {},
+  stop: {label:'⛔ Terminate at next station', cls:'tag-stop'},
+  nrv: {label:'🔁 Non-revenue service', cls:'tag-nrv'},
+  continue: {label:'✅ May continue in service', cls:'tag-continue'},
+  limit: {label:'⚡ Operate under restrictions', cls:'tag-limit'},
+};
+
+// ── INDEX LIST ─────────────────────────────────────────────────────────
+function renderFaults(cat) {
+  activeCat = cat;
+  const list = document.getElementById('fault-list');
+  const items = cat === 'all' ? FAULTS : FAULTS.filter(f => f.cat === cat);
+  filteredFaultIds = items.map(f => f.id);
+
+  if (cat === 'all') {
+    let html = '';
+    CAT_ORDER.forEach(c => {
+      const group = items.filter(f => f.cat === c);
+      if (!group.length) return;
+      html += `<div class="fault-index-group-label">${CAT_LABELS[c]}</div>`;
+      html += group.map(f => `
+        <div class="fault-index-item" onclick="openFaultDetail('${f.id}')">
+          <div class="fi-dot ${f.severity}"></div>
+          <div class="fi-name">${f.name}</div>
+          <div class="fi-arrow">›</div>
+        </div>`).join('');
+    });
+    list.innerHTML = html;
+  } else {
+    list.innerHTML = items.map(f => `
+      <div class="fault-index-item" onclick="openFaultDetail('${f.id}')">
+        <div class="fi-dot ${f.severity}"></div>
+        <div class="fi-name">${f.name}</div>
+        <div class="fi-arrow">›</div>
+      </div>`).join('');
+  }
+}
+
+function filterCat(cat, el) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderFaults(cat);
+}
+
+// ── DETAIL PAGE ────────────────────────────────────────────────────────
+function openFaultDetail(id) {
+  currentFaultId = id;
+  renderFaultDetail(id);
+  showScreen('screen-fault-detail');
+}
+
+function renderFaultDetail(id) {
+  const f = FAULTS.find(x => x.id === id);
+  if (!f) return;
+
+  const idx = filteredFaultIds.indexOf(id);
+  const prevId = idx > 0 ? filteredFaultIds[idx - 1] : null;
+  const nextId = idx < filteredFaultIds.length - 1 ? filteredFaultIds[idx + 1] : null;
+
+  const severityLabel = f.severity === 'critical' ? '🔴 Critical' : '🟡 Caution';
+
+  const tags = (f.inservice_tags || [])
+    .filter(t => TAGS[t] && TAGS[t].label)
+    .map(t => `<span class="fault-tag ${TAGS[t].cls}">${TAGS[t].label}</span>`)
+    .join('');
+
+  const prevOnclick = prevId
+    ? `renderFaultDetail('${prevId}');currentFaultId='${prevId}';document.getElementById('main').scrollTop=0`
+    : '';
+  const nextOnclick = nextId
+    ? `renderFaultDetail('${nextId}');currentFaultId='${nextId}';document.getElementById('main').scrollTop=0`
+    : '';
+
+  document.getElementById('fault-detail-content').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-cat-label">${CAT_LABELS[f.cat] || f.cat}</div>
+      <div class="detail-title">${f.name}</div>
+      <div class="detail-severity ${f.severity}">${severityLabel}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-header before-hdr">
+        <div class="detail-section-icon">🏭</div>
+        <div class="detail-section-meta">
+          <div class="detail-section-title">Before Leaving Maintenance</div>
+          <div class="detail-section-subtitle">Minimum requirements before leaving Wulkuraka (NGR) or Mayne Rail Complex (other fleets)</div>
+        </div>
+      </div>
+      <div class="detail-section-body">${f.before}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-header inservice-hdr">
+        <div class="detail-section-icon">🚆</div>
+        <div class="detail-section-meta">
+          <div class="detail-section-title">If Failure Detected In Service</div>
+          <div class="detail-section-subtitle">Action when failure detected at a stabling facility (not Wulkuraka/Mayne) or while in service</div>
+        </div>
+      </div>
+      <div class="detail-section-body">${f.inservice}</div>
+    </div>
+
+    ${tags ? `<div class="detail-tags">${tags}</div>` : '<div style="height:8px"></div>'}
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn ${!prevId ? 'disabled' : ''}" onclick="${prevOnclick}">‹ Prev</button>
+      <button class="detail-nav-btn ${!nextId ? 'disabled' : ''}" onclick="${nextOnclick}">Next ›</button>
+    </div>
+  `;
+
+  document.getElementById('header-title').textContent = f.name;
+}
+
+// ── SEARCH ─────────────────────────────────────────────────────────────
+const SEARCH_INDEX = [
+  ...FAULTS.map(f => ({
+    type:'fault', cat:'Operating Conditions',
+    name: f.name,
+    snippet: f.inservice.substring(0,100)+'…',
+    screen:'screen-fault-detail', id: f.id
+  })),
+];
+
+function onSearch(val) {
+  const clearBtn = document.getElementById('search-clear');
+  const resultsEl = document.getElementById('search-results');
+  if (!val.trim()) {
+    clearBtn.classList.remove('show');
+    resultsEl.classList.remove('show');
+    resultsEl.innerHTML = '';
+    // Restore all screens, then re-activate the current one
+    document.querySelectorAll('.screen').forEach(s => s.style.display = '');
+    return;
+  }
+  clearBtn.classList.add('show');
+  document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+  const q = val.toLowerCase();
+  const hits = SEARCH_INDEX.filter(item =>
+    item.name.toLowerCase().includes(q) || item.snippet.toLowerCase().includes(q)
+  );
+  if (hits.length === 0) {
+    resultsEl.innerHTML = '<div class="no-results">No results for "<strong>' + val + '</strong>"</div>';
+  } else {
+    resultsEl.innerHTML = hits.map(h => `
+      <div class="search-result-item" onclick="goToSearchResult('${h.screen}','${h.id||''}')">
+        <div class="sri-cat">${h.cat}</div>
+        <div class="sri-name">${h.name}</div>
+        <div class="sri-snippet">${h.snippet}</div>
+      </div>`).join('');
+  }
+  resultsEl.classList.add('show');
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').classList.remove('show');
+  document.getElementById('search-results').classList.remove('show');
+  document.getElementById('search-results').innerHTML = '';
+  // Remove inline display:none set during search on all screens
+  document.querySelectorAll('.screen').forEach(s => s.style.display = '');
+}
+
+function goToSearchResult(screen, id) {
+  clearSearch();
+  if (screen === 'screen-fault-detail' && id) {
+    filteredFaultIds = FAULTS.map(f => f.id);
+    openFaultDetail(id);
+  } else {
+    showScreen(screen);
+  }
+}
+
+// ── FLASHCARDS ─────────────────────────────────────────────────────────
+let fcCards = [], fcIdx = 0, fcFlipped = false, fcCorrect = 0;
+
+function startFlashcards() {
+  fcCards = [...FAULTS].sort(() => Math.random() - 0.5);
+  fcIdx = 0; fcFlipped = false; fcCorrect = 0;
+  showScreen('screen-flashcards');
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  if (fcIdx >= fcCards.length) {
+    document.getElementById('fc-wrap').innerHTML = `
+      <div style="text-align:center;padding:40px 16px">
+        <div style="font-size:48px;margin-bottom:12px">🎉</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--text1);margin-bottom:8px">Session Complete</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:24px">${fcCorrect} / ${fcCards.length} correct</div>
+        <button onclick="startFlashcards()" style="background:var(--green);color:#000;border:none;padding:14px 32px;border-radius:12px;font-family:'Barlow',sans-serif;font-size:15px;font-weight:700;cursor:pointer">Restart</button>
+      </div>`;
+    return;
+  }
+  const f = fcCards[fcIdx];
+  const pct = (fcIdx / fcCards.length * 100).toFixed(0);
+  document.getElementById('fc-wrap').innerHTML = `
+    <div class="fc-progress"><div class="fc-progress-fill" style="width:${pct}%"></div></div>
+    <div class="fc-counter">${fcIdx + 1} / ${fcCards.length}</div>
+    <div class="flashcard ${fcFlipped ? 'flipped' : ''}" onclick="flipCard()">
+      <div class="fc-side">${fcFlipped ? 'IN-SERVICE FAILURE ACTION' : 'ITEM NAME'}</div>
+      <div class="fc-q">${fcFlipped ? '' : f.name}</div>
+      <div class="fc-a">${fcFlipped ? f.inservice.substring(0,200) + (f.inservice.length > 200 ? '…' : '') : ''}</div>
+      <div class="fc-hint">${fcFlipped ? 'Tap to flip back' : 'Tap to reveal in-service action'}</div>
+    </div>
+    ${fcFlipped ? `
+    <div class="fc-nav">
+      <button class="fc-btn wrong" onclick="fcAnswer(false)">✕ Review again</button>
+      <button class="fc-btn correct" onclick="fcAnswer(true)">✓ Got it</button>
+    </div>` : ''}
+  `;
+}
+
+function flipCard() { fcFlipped = !fcFlipped; renderFlashcard(); }
+
+function fcAnswer(correct) {
+  if (correct) fcCorrect++;
+  fcIdx++; fcFlipped = false;
+  renderFlashcard();
+}
+
+function startMCQ() {
+  alert('Multiple Choice coming in Pass 3 — with MD-14-38 content loaded!');
+}
+
+
+// ── PWA INIT ───────────────────────────────────────────────────────────
+(function initPWA() {
+
+  // 1. Generate app icon via canvas
+  function makeIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const r = size * 0.18;
+    // Rounded background
+    ctx.fillStyle = '#141414';
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(size - r, 0);
+    ctx.quadraticCurveTo(size, 0, size, r);
+    ctx.lineTo(size, size - r);
+    ctx.quadraticCurveTo(size, size, size - r, size);
+    ctx.lineTo(r, size);
+    ctx.quadraticCurveTo(0, size, 0, size - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+    // Green top bar
+    ctx.fillStyle = '#00c853';
+    ctx.fillRect(size * 0.12, size * 0.1, size * 0.76, size * 0.055);
+    // DR text
+    ctx.fillStyle = '#00c853';
+    ctx.font = `900 ${size * 0.44}px Arial Black, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('DR', size / 2, size * 0.56);
+    // READY subtext
+    ctx.fillStyle = '#555';
+    ctx.font = `700 ${size * 0.11}px Arial, sans-serif`;
+    ctx.fillText('READY', size / 2, size * 0.84);
+    return c.toDataURL('image/png');
+  }
+
+  // 2. Build and inject manifest
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+
+  const manifestData = {
+    name: 'DriveReady',
+    short_name: 'DriveReady',
+    description: 'Queensland Rail RTD operational reference — IMU, SMU & NGR fleets',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    orientation: 'portrait-primary',
+    background_color: '#141414',
+    theme_color: '#00c853',
+    categories: ['education', 'utilities'],
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+    ]
+  };
+
+  const mBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+  const mURL = URL.createObjectURL(mBlob);
+  const mLink = document.createElement('link');
+  mLink.rel = 'manifest'; mLink.href = mURL;
+  document.head.appendChild(mLink);
+
+  // Apple touch icon
+  const aLink = document.createElement('link');
+  aLink.rel = 'apple-touch-icon'; aLink.href = icon192;
+  document.head.appendChild(aLink);
+
+  // Favicon
+  const fLink = document.createElement('link');
+  fLink.rel = 'icon'; fLink.type = 'image/png'; fLink.href = makeIcon(32);
+  document.head.appendChild(fLink);
+
+  // 3. Register service worker (sw.js must be in same directory)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('DriveReady SW registered, scope:', reg.scope))
+      .catch(err => console.warn('SW registration failed (needs HTTPS + sw.js in same folder):', err));
+  }
+
+  // 4. Intercept beforeinstallprompt for custom install banner
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Only show if not dismissed before
+    if (!localStorage.getItem('dr-install-dismissed')) {
+      setTimeout(() => {
+        document.getElementById('install-banner').classList.add('show');
+      }, 3000);
+    }
+  });
+
+  window.triggerInstall = function() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(choice => {
+        if (choice.outcome === 'accepted') {
+          document.getElementById('install-banner').classList.remove('show');
+        }
+        deferredPrompt = null;
+      });
+    }
+  };
+
+  window.dismissInstall = function() {
+    document.getElementById('install-banner').classList.remove('show');
+    localStorage.setItem('dr-install-dismissed', '1');
+  };
+
+  // 5. Hide install banner if already running as installed PWA
+  if (window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true) {
+    localStorage.setItem('dr-install-dismissed', '1');
+  }
+
+})(); // end initPWA
+
+// ── INIT ───────────────────────────────────────────────────────────────
+renderFaults('all');
+updateHeader();
+</script>
+</body>
+</html>
