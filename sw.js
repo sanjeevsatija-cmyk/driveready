@@ -1,10 +1,10 @@
 // DriveReady Service Worker
-// Bump CACHE_NAME version string whenever you update DriveReady.html
-const CACHE_NAME = 'driveready-v1';
+// Bump CACHE_NAME version string whenever you update index.html
+const CACHE_NAME = 'driveready-v2';
 
 const ASSETS = [
   './',
-  './DriveReady.html',
+  './index.html',
   'https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap',
 ];
 
@@ -53,7 +53,7 @@ self.addEventListener('fetch', event => {
       });
     }).catch(() => {
       // Offline fallback — return the cached app
-      return caches.match('./DriveReady.html');
+      return caches.match('./index.html');
     })
   );
 });

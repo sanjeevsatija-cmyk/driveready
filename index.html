@@ -579,7 +579,37 @@ body{background:var(--bg);color:var(--text1)}
 }
 .single-col-text strong{color:var(--text1)}
 
-/* ── SCROLLBAR ────────────────────────────────────────────────────── */
+/* ── PROCEDURES ───────────────────────────────────────────────────── */
+.proc-fleet-wrap{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.proc-fleet-wrap::-webkit-scrollbar{display:none}
+.proc-fleet-btn{flex-shrink:0;padding:8px 16px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.3px;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.proc-fleet-btn.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.proc-section{margin:0 16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.proc-section:last-child{border-bottom:none;padding-bottom:24px}
+.proc-section-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;padding:16px 0 8px}
+.proc-section-note{font-size:13px;color:var(--text3);line-height:1.5;margin-bottom:10px;font-style:italic}
+.proc-steps{display:flex;flex-direction:column;gap:8px}
+.proc-step{display:flex;align-items:flex-start;gap:12px}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);flex-shrink:0;margin-top:2px}
+.step-body{flex:1}
+.step-role{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:3px;text-transform:uppercase}
+.step-role.rtd{color:var(--green)}
+.step-role.both,.step-role.shared{color:var(--blue)}
+.step-text{font-size:16px;color:var(--text1);line-height:1.65;white-space:pre-line}
+.proc-step-note{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--blue);font-size:14px;color:var(--text2);line-height:1.5}
+.proc-step-warning{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--red-dim);border-radius:var(--radius-sm);border-left:3px solid var(--red);font-size:14px;color:var(--text1);line-height:1.5;font-weight:600}
+.rules-section{margin:0 16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.rules-section:last-child{border-bottom:none;padding-bottom:24px}
+.rules-section-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--text1);padding:16px 0 10px}
+.rules-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.rules-item:last-child{border-bottom:none}
+.rules-item-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;width:52px;flex-shrink:0;padding-top:3px}
+.rules-item-label.warning{color:var(--red)}
+.rules-item-label.action{color:var(--green)}
+.rules-item-label.info{color:var(--blue)}
+.rules-item-label.caution{color:var(--amber)}
+.rules-item-text{font-size:15px;color:var(--text2);line-height:1.65;flex:1}
+
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
@@ -647,6 +677,32 @@ body{background:var(--bg);color:var(--text1)}
   height:18px;margin-top:4px;transition:opacity .2s;
 }
 .gate-lock{font-size:40px;margin-bottom:16px}
+
+/* ── PWA INSTALL BANNER ───────────────────────────────────────────── */
+#install-banner{
+  display:none;
+  position:fixed;bottom:calc(var(--nav-h) + 8px);left:12px;right:12px;
+  z-index:200;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:12px 14px;
+  align-items:center;gap:12px;
+  box-shadow:var(--shadow);
+}
+#install-banner.show{display:flex}
+.install-icon{font-size:26px;flex-shrink:0}
+.install-body{flex:1;min-width:0}
+.install-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--text1);letter-spacing:.3px}
+.install-sub{font-size:12px;color:var(--text2);margin-top:1px}
+.install-btn{
+  background:var(--green);color:#000;border:none;
+  padding:8px 14px;border-radius:10px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;
+  letter-spacing:.3px;flex-shrink:0;
+}
+.install-close{
+  background:none;border:none;color:var(--text3);
+  cursor:pointer;font-size:20px;padding:4px;flex-shrink:0;line-height:1;
+}
 </style>
 
 <!-- PASSWORD GATE -->
@@ -667,7 +723,7 @@ body{background:var(--bg);color:var(--text1)}
 <script>
 // ── PASSWORD GATE ──────────────────────────────────────────────────────
 // Change this to whatever password you want
-const ACCESS_CODE = '912652';
+const ACCESS_CODE = 'QR2026';
 const SESSION_KEY = 'dr-auth';
 
 function checkPassword() {
@@ -766,6 +822,18 @@ if (sessionStorage.getItem(SESSION_KEY)) {
             <div class="card-sub">Entering service &amp; in-service failure requirements</div>
           </div>
           <div class="card-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-label">MD-14-38 — Procedures (Part 1)</div>
+      <div class="home-grid">
+        <div class="home-card accent" onclick="navTo('procedures')">
+          <div class="card-icon icon-blue">🔧</div>
+          <div class="card-body">
+            <div class="card-title">Procedures</div>
+            <div class="card-sub">Train prep, functionality tests, door isolation, stabling, signalling</div>
+          </div>
+          <span class="card-count">7 sections</span>
         </div>
       </div>
 
@@ -1022,6 +1090,57 @@ if (sessionStorage.getItem(SESSION_KEY)) {
       <div class="flashcard-wrap" id="fc-wrap"></div>
     </div>
 
+    <!-- ══ PROCEDURES HOME ════════════════════════════════════════════ -->
+    <div class="screen" id="screen-procedures">
+      <div class="section-hero">
+        <div class="section-hero-eyebrow">MD-14-38 · Part 1</div>
+        <div class="section-hero-title">Procedures</div>
+        <div class="section-hero-sub">RTD operational procedures — IMU, SMU &amp; NGR</div>
+      </div>
+      <div class="home-grid" style="padding-top:12px;padding-bottom:16px">
+        <div class="home-card accent" onclick="openProc('prep')">
+          <div class="card-icon icon-green">🔍</div>
+          <div class="card-body"><div class="card-title">Train Preparation</div><div class="card-sub">Pre-checks, ETCS reset, internal &amp; external inspections</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="openProc('func')">
+          <div class="card-icon icon-blue">🧪</div>
+          <div class="card-body"><div class="card-title">Functionality Tests</div><div class="card-sub">Power, DSC, doors, EP cut-out, vigilance — QR &amp; NGR</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="openProc('predep')">
+          <div class="card-icon icon-green">✅</div>
+          <div class="card-body"><div class="card-title">Pre-Departure Tests</div><div class="card-sub">Continuity, doors, comms, EP cut-out — mandatory before service</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="openProc('dooriso')">
+          <div class="card-icon icon-amber">🚪</div>
+          <div class="card-body"><div class="card-title">Door Isolation — RTD Role</div><div class="card-sub">RTD console actions per fleet type</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="openProc('stabling')">
+          <div class="card-icon icon-blue">🏭</div>
+          <div class="card-body"><div class="card-title">Stabling</div><div class="card-sub">Online stabling &amp; shutdown sequences</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="openProc('rules')">
+          <div class="card-icon icon-red">📌</div>
+          <div class="card-body"><div class="card-title">Rules &amp; Quick Reference</div><div class="card-sub">BO-BO, cab passes, lockout devices, track buckles, emergency broadcast</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+        <div class="home-card" onclick="openProc('signalling')">
+          <div class="card-icon icon-green">🚦</div>
+          <div class="card-body"><div class="card-title">Signalling Systems</div><div class="card-sub">Block working, track circuits, signals, locking, fail-safe</div></div>
+          <div class="card-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PROCEDURE DETAIL ══════════════════════════════════════════ -->
+    <div class="screen" id="screen-proc-detail">
+      <div id="proc-detail-content"></div>
+    </div>
+
   </main>
 
   <!-- BOTTOM NAV -->
@@ -1041,6 +1160,10 @@ if (sessionStorage.getItem(SESSION_KEY)) {
     <button class="nav-item" id="nav-study" onclick="navTo('study')">
       <div class="nav-icon">🎯</div>
       <div class="nav-label">Study</div>
+    </button>
+    <button class="nav-item" id="nav-procedures" onclick="navTo('procedures')">
+      <div class="nav-icon">🔧</div>
+      <div class="nav-label">Procedures</div>
     </button>
   </nav>
 
@@ -1082,6 +1205,8 @@ const screenTitles = {
   dsc: 'Defective DSC',
   study: 'Study Mode',
   flashcards: 'Flashcards',
+  procedures: 'Procedures',
+  'proc-detail': 'Procedures',
 };
 function showScreen(id) {
   const key = id.replace('screen-','');
@@ -1111,7 +1236,7 @@ function updateHeader() {
   }
   // Update nav active
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navMap = {home:'nav-home', faults:'nav-faults', mandatory:'nav-mandatory', study:'nav-study'};
+  const navMap = {home:'nav-home', faults:'nav-faults', mandatory:'nav-mandatory', study:'nav-study', procedures:'nav-procedures', 'proc-detail':'nav-procedures'};
   if (navMap[cur]) document.getElementById(navMap[cur]).classList.add('active');
 }
 function navTo(key) {
@@ -1606,7 +1731,621 @@ function startMCQ() {
 }
 
 
-// ── PWA INIT ───────────────────────────────────────────────────────────
+// ── PROCEDURE DATA & RENDERING ─────────────────────────────────────────
+let currentProc = null;
+
+const PROC_DATA = {
+  prep:{title:'Train Preparation',icon:'🔍',eyebrow:'MD-14-38 · Part 1 · Sec 1.4 / 1.6',fleets:{qr:'QR Units (IMU / SMU)',ngr:'NGR'},content:{
+    qr:[
+      {title:'General Pre-Checks',steps:[
+        {role:'RTD',text:'Confirm no "Not to be Moved" signs or Red Flags are displayed'},
+        {role:'RTD',text:'Confirm no lockout devices are attached'},
+        {role:'RTD',text:'Confirm a current Certificate of Service is displayed and within date'},
+        {role:'WARNING',text:'If Certificate of Service is not displayed or within date — DO NOT continue with preparation'},
+        {role:'RTD',text:'If unit is in the shed or decanting road, obtain authority before starting preparation'},
+        {role:'BOTH',text:'Check for internal and external graffiti (MD-16-601)'},
+      ]},
+      {title:'ETCS Power Reset',steps:[
+        {role:'RTD',text:'Operate ETCS Power Reset prior to beginning any other preparation'},
+        {role:'RTD',text:'Lift and hold the red cover on the ETCS BTM Isolation switch'},
+        {role:'RTD',text:'Turn the switch LEFT to the "Reset" position and hold until the BTM isolation light illuminates'},
+        {role:'RTD',text:'Release the switch — spring loaded, returns to "On" position'},
+        {role:'RTD',text:'Return the red cover to the normal position'},
+      ]},
+      {title:'External Cab Inspections',steps:[
+        {role:'RTD',text:'Energise cab following correct procedures'},
+        {role:'RTD',text:'Place direction controller into forward position'},
+        {role:'BOTH',text:'Confirm WHITE marker lights changed from red to white'},
+        {role:'BOTH',text:'Confirm both visibility lights are illuminated'},
+        {role:'BOTH',text:'Confirm both headlights are illuminated'},
+        {role:'BOTH',text:'Visually inspect Destination Board — operational and displaying correct destination'},
+      ]},
+      {title:'Internal Cab Inspection',steps:[
+        {role:'BOTH',text:'Check DTI switch is in normal and sealed'},
+        {role:'BOTH',text:'Check AWS isolating cock is in normal and sealed'},
+        {role:'BOTH',text:'(ETCS) Check ETCS Isolation Switch is in normal and sealed'},
+        {role:'BOTH',text:'(ETCS) Check ETCS Power Switch is in the ON position'},
+        {role:'BOTH',text:'Acknowledge AWS — ensure correct visual indication. Complete ATP startup per MD-10-117'},
+        {role:'RTD',text:'Allow VCS to time out and apply emergency brake. Acknowledge VCS once light is steady'},
+        {role:'RTD',text:'Press DSC test button'},
+        {role:'RTD',text:'(ETCS) Confirm guard speed indicator goes blank on cab activation'},
+        {role:'BOTH',text:'Observe MR, BC and BP gauges stay within defined limits'},
+        {role:'BOTH',text:'Ensure brake control moves freely. Confirm all gauge lights sufficiently illuminated'},
+        {role:'BOTH',text:'(IMU/SMU) Check Fault Display Unit (FDU) screen is working in driving cabs'},
+        {role:'BOTH',text:'Check safety equipment box correctly located and sealed'},
+        {role:'BOTH',text:'Check cab seat — all adjustment capabilities operational'},
+        {role:'BOTH',text:'Switch on air-conditioner/heater to confirm operational'},
+        {role:'BOTH',text:'Test PEI and PE at nearest door — confirm audible alarm and flashing indication in cab'},
+        {role:'BOTH',text:'Visually inspect windscreen and cabin glass — no damage, clean'},
+        {role:'BOTH',text:'Switch on windscreen wipers and water washer — confirm operational'},
+        {role:'BOTH',text:'Check rear view mirrors and cab blinds — adjustable and operational'},
+        {role:'BOTH',text:'Activate rightaway bells on both sides — listen for bell sound'},
+        {role:'BOTH',text:'Visually inspect fire extinguisher — sealed, secured, in date and charged'},
+        {role:'BOTH',text:'Check portable boarding ramp — no damage, strap undamaged, secured correctly'},
+        {role:'BOTH',text:'Check sufficient SW11 and SW50 forms in all cabs'},
+        {role:'BOTH',text:'Check sufficient door locked stickers in all cabs'},
+      ]},
+      {title:'External Train Inspection',note:'Start at one end and work your way around back to starting point.',steps:[
+        {role:'BOTH',text:'Walk external perimeter listening for any irregular air leaks'},
+        {role:'BOTH',text:'Visually inspect Brake Isolation cocks — confirm in correct (normal) position'},
+        {role:'BOTH',text:'Ensure all equipment box lids are closed and properly secured'},
+        {role:'BOTH',text:'Visually inspect inter-car electrical cables — free from visible damage'},
+        {role:'BOTH',text:'Visually inspect inter-car gangways and canopies — secured and safe to use'},
+        {role:'BOTH',text:'Visually inspect brake blocks and pads — not worn below condemning mark'},
+        {role:'BOTH',text:'Visually inspect transformers — no significant oil leakage'},
+        {role:'BOTH',text:'Visually inspect body underframe, bogies, steps, doors, ladders and ETCS equipment — all secure'},
+        {role:'BOTH',text:'Check for any dragging equipment'},
+        {role:'BOTH',text:'Confirm train unit configuration — hoses and cables correctly coupled, couplers not damaged, pivot lever in yellow band, self-centring device operational, check inline indicators'},
+        {role:'BOTH',text:'Visually inspect pantographs — no damage, all cables connected'},
+        {role:'BOTH',text:'(IMU 160 / SMU 260) Inspect sanding box sight glass — sand visible, delivery hose intact. Press test button to confirm sand releases at wheel/rail interface'},
+      ]},
+      {title:'Internal Car Inspection',note:'Walk from one end of the unit to the other.',steps:[
+        {role:'BOTH',text:'Listen for air conditioning — minimum one (1) unit working per car. Check ambient temperature'},
+        {role:'BOTH',text:'Visually inspect interior lighting — sufficient lights lit'},
+        {role:'BOTH',text:'Check toilet function — tap, flush, soap dispenser, door, hand dryer, toilet paper, sharps bin'},
+        {role:'BOTH',text:'Observe general cleanliness — litter, dirt, graffiti'},
+        {role:'BOTH',text:'Visually inspect all interior windows — no cracks in inner pane'},
+        {role:'BOTH',text:'Visually inspect inter-car handrails — secure. Canopies not torn or dislodged'},
+        {role:'BOTH',text:'Visually inspect all cabinets — closed and secured'},
+      ]},
+    ],
+    ngr:[
+      {title:'General Pre-Checks',steps:[
+        {role:'RTD',text:'Confirm no "Not to be Moved" signs or Red Flags are displayed'},
+        {role:'RTD',text:'Confirm destination indicator does NOT display "ALSTOM"'},
+        {role:'RTD',text:'Confirm no lockout devices are attached'},
+        {role:'RTD',text:'Confirm a current Certificate of Service is displayed'},
+        {role:'WARNING',text:'If Certificate of Service is not displayed — DO NOT continue with preparation'},
+        {role:'RTD',text:'If unit is in a decanting road, obtain authority before starting preparation'},
+      ]},
+      {title:'ETCS Power Reset',steps:[
+        {role:'RTD',text:'Operate ETCS Power Reset prior to beginning any other preparation'},
+        {role:'RTD',text:'Press and release the ETCS Reset button'},
+        {role:'NOTE',text:'The push button will illuminate when the reset process has commenced'},
+      ]},
+      {title:'External Cab Inspections',steps:[
+        {role:'BOTH',text:'Visually inspect nose cone — lowered and secured'},
+        {role:'BOTH',text:'Confirm marker lights operational on both ends of unit'},
+        {role:'RTD',text:'Energise cab following correct procedures'},
+        {role:'BOTH',text:'Confirm marker lights changed from red to white'},
+        {role:'RTD',text:'Place direction controller into forward position'},
+        {role:'BOTH',text:'Confirm both visibility lights are illuminated'},
+        {role:'RTD',text:'Press lamp Fault Acknowledgement and Lamp Test Panel below the HMI'},
+        {role:'BOTH',text:'Confirm Safety System Isolation Indicator (SSII) lamp in lower corner of windscreen illuminates'},
+        {role:'RTD',text:'Switch headlight controls to ON and BRIGHT'},
+        {role:'BOTH',text:'Confirm both headlights are illuminated'},
+        {role:'RTD',text:'Enter train number on HMI-C screen'},
+        {role:'BOTH',text:'Inspect Destination Board — correct information displayed'},
+      ]},
+      {title:'Internal Cab Inspection',steps:[
+        {role:'BOTH',text:'Switch cab lighting toggle switch ON — confirm ceiling lights operate'},
+        {role:'BOTH',text:'Confirm Certificate of Service is displayed'},
+        {role:'WARNING',text:'If Certificate of Service not displayed — DO NOT continue with the preparation'},
+        {role:'BOTH',text:'Confirm NGR unit is free of any lockout or other safety devices'},
+        {role:'WARNING',text:'If any lockout devices present — DO NOT continue with the preparation'},
+        {role:'BOTH',text:'Check all gauge lights sufficiently illuminated'},
+        {role:'BOTH',text:'Visually inspect safety equipment box for seal'},
+        {role:'BOTH',text:'Visually inspect fire extinguisher — sealed, secured, in date and charged'},
+        {role:'BOTH',text:'Open electrical locker — confirm DTI switch is in normal position'},
+        {role:'BOTH',text:'Open electrical locker — confirm ETCS isolation switch is in normal position'},
+        {role:'BOTH',text:'Check cab seat — all adjustment capabilities operational'},
+        {role:'BOTH',text:'Visually inspect windscreen and cabin glass — no damage, clean'},
+        {role:'BOTH',text:'Switch on air-conditioner/heater to confirm operational'},
+        {role:'BOTH',text:'Activate CCTV via HMI-C — confirm all interior cameras working. Enter train number and open each door to check external cameras'},
+        {role:'BOTH',text:'Check rear view mirrors — adjustable and suitably clean'},
+        {role:'BOTH',text:'Switch on windscreen wipers and water washer — confirm operational'},
+        {role:'BOTH',text:'(ETCS) Confirm both left and right portions of DMI screen are legible and all functions working'},
+        {role:'BOTH',text:'Check HMI-S — readable with all functions displayed (AWS Sunflower, Speedometer, BP Gauge, MR Gauge, Emergency Brake Status, Indicator Tiles, BC Pressures, Direction arrow)'},
+        {role:'BOTH',text:'Check HMI-O — readable with all functions (Date, Time, Odometer, Pantograph status, MCB status, AC status, Guards Override Status, Line Voltage, Power Brake reference)'},
+        {role:'BOTH',text:'Check HMI-C — readable with PEI and CCTV functions. Confirm external CCTV cameras operational'},
+        {role:'BOTH',text:'Activate rightaway bells both sides. Press IC button and communicate with other RTC member'},
+        {role:'BOTH',text:'Check SW50 forms in all cabs'},
+        {role:'BOTH',text:'Check door locked stickers in all cabs'},
+      ]},
+      {title:'External Train Inspection',note:'Performed by the RTD — complete walk around of the unit on the ground, finishing at the lead cab.',steps:[
+        {role:'RTD',text:'Visually inspect Brake Isolation cocks — in correct (normal) position'},
+        {role:'RTD',text:'Walk external perimeter listening for irregular air leaks. Pay particular attention to levelling valves, brake cylinders and intercar hoses'},
+        {role:'NOTE',text:'Levelling valve may discharge air but should not be constantly leaking'},
+        {role:'RTD',text:'Ensure all equipment and ladder box lids are closed and secured'},
+        {role:'RTD',text:'Visually inspect inter-car electrical cables — free from visible damage'},
+        {role:'RTD',text:'Visually inspect inter-car gangways and canopies — secured and safe to use'},
+        {role:'RTD',text:'Visually inspect transformers — no significant oil leakage'},
+        {role:'RTD',text:'Visually inspect body underframe, steps and doors — secure. Confirm brake pads serviceable'},
+        {role:'RTD',text:'Check for any dragging equipment'},
+        {role:'RTD',text:'Visually inspect pantographs — no damage, all cables connected'},
+        {role:'RTD',text:'Inspect sand level via inspection glass on all sanders — both sides. Sand level must be approximately at middle of sight glass. Report all active sanding faults and low sand levels to ISST'},
+      ]},
+    ],
+  }},
+  func:{title:'Functionality Tests',eyebrow:'MD-14-38 · Part 1 · Sec 1.4.1.6 / 1.6.6',fleets:{qr:'QR Units (IMU / SMU)',ngr:'NGR'},content:{
+    qr:[
+      {title:'Start of Mission (ETCS fitted)',steps:[
+        {role:'RTD',text:'Visually inspect DMI — confirm both screens are active'},
+        {role:'RTD',text:'Confirm AWS Sunflower is visible on the DMI screen'},
+        {role:'RTD',text:'Confirm Start of Mission has been completed successfully in the driving cabs'},
+        {role:'NOTE',text:'See ETCS OBU Start up procedure which includes start up tests'},
+      ]},
+      {title:'Power Test & Park Brake Test',steps:[
+        {role:'RTD',text:'Apply the Parking Brake'},
+        {role:'RTD',text:'Energise the DSC'},
+        {role:'RTD',text:'Move the Brake Controller to Off'},
+        {role:'RTD',text:'Sound the horn'},
+        {role:'RTD',text:'Move the Power Controller to V1 / V2 when brake controller pressure reduces below 80kPa'},
+        {role:'RTD',text:'Confirm train moved or tried to move'},
+        {role:'RTD',text:'Apply brake to stop the train — move power controller to off'},
+        {role:'RTD',text:'Reapply Parking Brake and move Direction Controller to Neutral'},
+        {role:'RTD',text:'Move brake controller to Full Service and release DSC'},
+      ]},
+      {title:'Driver Safety Control (DSC)',steps:[
+        {role:'RTD',text:'Release the DSC'},
+        {role:'RTD',text:'Observe BP discharged to below 300kPa in under 10 seconds and BCPs applied to Emergency'},
+        {role:'RTD',text:'Confirm: Emergency Brake Application — DSC Active'},
+        {role:'RTD',text:'Energise DSC'},
+        {role:'RTD',text:'Observe BP charging, MR steady and BCPs released'},
+        {role:'RTD',text:'Repeat process for all DSC movements'},
+      ]},
+      {title:'Doors',steps:[
+        {role:'RTD',text:'Press door open button for both sides — ensure they illuminate'},
+        {role:'RTD',text:'Check "door open" tile on dash is illuminated'},
+        {role:'RTD',text:'Check door open status displayed on DDDU and TMS as all doors release'},
+        {role:'BOTH',text:'Press door open release buttons to open all doors in passenger cars — check all door indicator lights illuminate'},
+        {role:'BOTH',text:'Check bells operate in all remaining cabs'},
+        {role:'RTD',text:'Press one door close button — listen for announcement'},
+        {role:'RTD',text:'Press other door close button — listen for announcement'},
+        {role:'RTD',text:'Ensure door open tile extinguishes'},
+      ]},
+      {title:'EP Cut-Out Test',steps:[
+        {role:'RTD',text:'Move direction controller to neutral'},
+        {role:'RTD',text:'Ensure park brake is applied'},
+        {role:'RTD',text:'Move brake controller to "off" position'},
+        {role:'RTD',text:'Energise DSC'},
+        {role:'RTD',text:'Ensure BP charged to 500kPa and BCP pressures are 0kPa'},
+        {role:'RTD',text:'Move brake controller to Full Service'},
+        {role:'RTD',text:'Observe BCP pressures rise to 200–300kPa'},
+        {role:'RTD',text:'Observe BP pressure remains at 500kPa'},
+        {role:'RTD',text:'Press and hold the EP cut-out button'},
+        {role:'RTD',text:'Observe BP pressure reduces to 350kPa'},
+        {role:'RTD',text:'Observe BCP pressures rise to 200–300kPa'},
+        {role:'RTD',text:'Move brake controller to "off" position'},
+        {role:'RTD',text:'Ensure BP recharges to 500kPa and BCPs read 0kPa'},
+        {role:'RTD',text:'Release the EP cut-out button'},
+        {role:'RTD',text:'Move brake controller to Full Service'},
+        {role:'RTD',text:'De-energise DSC'},
+      ]},
+      {title:'Cab Emergency Valve Test — IMU 160 / SMU 260 only',steps:[
+        {role:'WARNING',text:'Must be performed whenever the cab is energised on IMU160/SMU260 units'},
+        {role:'RTD',text:'Move direction controller from isolate to neutral. Ensure Park Brake applied'},
+        {role:'RTD',text:'Energise DSC. Ensure brake controller in off position — observe BCP 0kPa (or 100–120kPa if doors released)'},
+        {role:'RTD',text:'Check MR reads 700–850kPa and BP reads 500kPa'},
+        {role:'RTD',text:'Check TMS screen pressures correspond with active cab gauge readings'},
+        {role:'RTD',text:'Open the cab emergency valve slowly'},
+        {role:'RTD',text:'Observe BP falls below 350kPa, BCP rises to 260–320kPa, MR reads 700–850kPa'},
+        {role:'RTD',text:'Check TMS screen pressures correspond with active cab gauges'},
+        {role:'RTD',text:'Close the cab emergency valve'},
+        {role:'RTD',text:'Observe BP rises to 500kPa, BCP reads 0kPa (or 100–120kPa if doors released)'},
+        {role:'RTD',text:'Check MR reads 700–850kPa. Check TMS screen pressures correspond'},
+        {role:'RTD',text:'Move brake controller to Full Service (to verify brake computer is operational)'},
+        {role:'RTD',text:'Check TMS and console pressures correspond — BP 500kPa, BCP 260–320kPa, MR 700–850kPa'},
+        {role:'RTD',text:'Release DSC'},
+      ]},
+      {title:'Communications',steps:[
+        {role:'BOTH',text:'Check IC and PA indicator lamps on VAS control panel are illuminated'},
+        {role:'BOTH',text:'Test audible operation of Voice Announcement System (VAS)'},
+        {role:'BOTH',text:'Check operation of cab radio and place handset in cradle'},
+        {role:'BOTH',text:'Check operation of cab to cab call tone'},
+        {role:'BOTH',text:'Test Public Address (PA) is working correctly and place handset in cradle'},
+      ]},
+    ],
+    ngr:[
+      {title:'Start of Mission (ETCS)',steps:[
+        {role:'RTD',text:'Visually inspect DMI — confirm both screens are active'},
+        {role:'RTD',text:'Confirm AWS Sunflower is visible on the DMI screen'},
+        {role:'RTD',text:'Confirm Start of Mission has been completed successfully in the driving cabs'},
+      ]},
+      {title:'Park Brake Test',steps:[
+        {role:'RTD',text:'Place Direction Controller in Neutral'},
+        {role:'RTD',text:'Move Brake Controller to Initial Service'},
+        {role:'RTD',text:'Energise DSC — observe BP charging to 500kPa'},
+        {role:'RTD',text:'Apply Park Brake'},
+        {role:'RTD',text:'Observe on HMI-O: park brake status ON for all cars'},
+        {role:'RTD',text:'Release Park Brake'},
+        {role:'RTD',text:'Observe on HMI-O: park brake status OFF for all cars'},
+        {role:'RTD',text:'Apply Park Brake'},
+        {role:'NOTE',text:'All remaining tests must be conducted with the Park Brake applied'},
+      ]},
+      {title:'Vigilance Test',steps:[
+        {role:'RTD',text:'Press and hold Vigilance button for more than 3 seconds until the Vigilance light starts flashing'},
+        {role:'RTD',text:'Observe BP discharged rapidly to 10kPa in 45 seconds and BCPs applied to Emergency'},
+        {role:'RTD',text:'When BP is at 10kPa, open the Emergency Cock to assist venting BP to 0kPa'},
+        {role:'RTD',text:'Once 0kPa indicated, close the Emergency Cock — BP must remain at 0kPa for 10 seconds after closing'},
+        {role:'RTD',text:'Confirm Vigilance indicator is Flashing — Emergency Brake Application: Vigilance Active'},
+        {role:'RTD',text:'Wait for Vigilance indicator to return to steady'},
+        {role:'RTD',text:'Acknowledge Vigilance push button — observe BP charged and BCPs released'},
+      ]},
+      {title:'Emergency Brake Test',steps:[
+        {role:'RTD',text:'Move Brake Controller to Emergency'},
+        {role:'RTD',text:'Observe BP discharged to below 20kPa in 20 seconds and BCPs applied to Emergency'},
+        {role:'RTD',text:'Confirm Emergency Brake Status: Brake Controller'},
+        {role:'RTD',text:'Move Brake Controller to Run'},
+        {role:'RTD',text:'Observe BP charged and BCPs released'},
+      ]},
+      {title:'EP Cut-Out Test',steps:[
+        {role:'RTD',text:'Move Brake Controller to Run'},
+        {role:'RTD',text:'Press EP CUT-OUT button'},
+        {role:'RTD',text:'Move Brake Controller to Full Service'},
+        {role:'RTD',text:'Release EP CUT-OUT button'},
+        {role:'RTD',text:'Observe BP at 330 ±15kPa, MR maintained and BCPs applied to specification'},
+        {role:'RTD',text:'Move Brake Controller to Run'},
+        {role:'RTD',text:'Observe BP charged and BCPs released'},
+      ]},
+      {title:'Doors Test',steps:[
+        {role:'RTD',text:'Move Brake Controller to Full Service'},
+        {role:'RTD',text:'Confirm BCP on all cars above 250kPa'},
+        {role:'RTD',text:'Move Brake Controller to Run'},
+        {role:'NOTE',text:'Driver will notice normal brake is slow to release'},
+        {role:'RTD',text:'Release LHS/RHS Doors'},
+        {role:'RTD',text:'Observe BCP on all cars is 140kPa'},
+        {role:'RTD',text:'Move Brake Controller to Full Service'},
+        {role:'RTD',text:'Close LHS/RHS Doors'},
+        {role:'RTD',text:'Observe BCPs are all applied'},
+      ]},
+      {title:'DSC Test',steps:[
+        {role:'RTD',text:'Release the DSC'},
+        {role:'RTD',text:'Observe BP discharged to below 300kPa in under 10 seconds and BCPs applied to Emergency'},
+        {role:'RTD',text:'Confirm: Emergency Brake Application — DSC Active'},
+        {role:'RTD',text:'Energise DSC'},
+        {role:'RTD',text:'Observe BP charging, MR steady and BCPs released'},
+        {role:'RTD',text:'Repeat process for all DSC movements'},
+      ]},
+      {title:'Cab Emergency Valve',steps:[
+        {role:'RTD',text:'Open Cab Emergency Valve'},
+        {role:'RTD',text:'Observe BP discharging and BCPs applying to Emergency'},
+        {role:'RTD',text:'Close Cab Emergency Valve'},
+        {role:'RTD',text:'Observe BP charging and BCPs releasing'},
+      ]},
+      {title:'Power Test',steps:[
+        {role:'RTD',text:'Apply the Park Brake'},
+        {role:'RTD',text:'Energise the DSC'},
+        {role:'RTD',text:'Move the Brake Controller to Off'},
+        {role:'RTD',text:'Sound the horn'},
+        {role:'RTD',text:'Move Power Controller to V1 / V2 when brake controller pressure reduces below 80kPa'},
+        {role:'RTD',text:'Confirm train moved or tried to move'},
+        {role:'RTD',text:'Apply brake to stop the train — move power controller to off'},
+        {role:'RTD',text:'Reapply Park Brake and move Direction Controller to Neutral'},
+        {role:'RTD',text:'Move brake controller to Full Service and release DSC'},
+        {role:'NOTE',text:'The only difference to current fleet: no fault message "Driving against Park Brake"'},
+      ]},
+    ],
+  }},
+  predep:{title:'Pre-Departure Tests',eyebrow:'MD-14-38 · Part 1 · Sec 1.4.3 / 1.6.7',note:'Mandatory for all train units when departing stabling areas and following any re-marshalling.',fleets:{qr:'QR Units (IMU / SMU)',ngr:'NGR'},content:{
+    qr:[
+      {title:'Continuity Test',note:'RTD in leading cab — Guard/Second Crew in trailing cab.',steps:[
+        {role:'RTD',text:'Move direction controller from isolate to neutral'},
+        {role:'RTD',text:'Ensure park brake is applied'},
+        {role:'RTD',text:'Energise DSC'},
+        {role:'RTD',text:'Ensure brake controller remains in off position and re-energise DSC'},
+        {role:'RTD',text:'Observe BCP reads 0kPa'},
+        {role:'RTD',text:'Observe MR reads 700–800kPa'},
+        {role:'RTD',text:'Observe BP reads 500kPa'},
+        {role:'RTD',text:'Ask second crew member for air pressures in BP and BC'},
+        {role:'BOTH',text:'Second crew member advises readings — RTD confirms they are the same'},
+        {role:'RTD',text:'De-energise DSC'},
+        {role:'RTD',text:'Monitor BP exhaust to 0kPa — must take no longer than 45 seconds'},
+        {role:'RTD',text:'When BP is 0kPa, ask guard/authorised worker for pressures in BP and BC'},
+        {role:'BOTH',text:'Guard advises when BP is 0kPa and confirms BC pressure is below 700kPa'},
+        {role:'RTD',text:'Ensure brake controller in off position and re-energise DSC'},
+        {role:'RTD',text:'Monitor charge times — BP to 500kPa with 0kPa in BC must take no longer than 45 seconds. If either time exceeds 45 secs, notify RDC'},
+      ]},
+      {title:'Doors',steps:[{role:'BOTH',text:'Follow the procedure as outlined in Functionality Tests — Doors'}]},
+      {title:'Communications',steps:[
+        {role:'BOTH',text:'Confirm IC, PA and VAS systems are operational'},
+        {role:'BOTH',text:'Check operation of cab radio'},
+        {role:'BOTH',text:'Check operation of cab to cab call tone'},
+      ]},
+      {title:'EP Cut-Out Test (non IMU160/SMU260)',steps:[{role:'BOTH',text:'Follow the procedure as outlined in Functionality Tests — EP Cut-Out Test'}]},
+      {title:'Cab Emergency Valve Test (IMU160/SMU260)',steps:[{role:'BOTH',text:'Follow the procedure as outlined in Functionality Tests — Cab Emergency Valve Test'}]},
+      {title:'Train Whistle',steps:[
+        {role:'RTD',text:'Ensure second crew member is aware of the test'},
+        {role:'RTD',text:'Operate the town whistle'},
+        {role:'NOTE',text:'Only check country whistle if town whistle is not operating correctly'},
+        {role:'NOTE',text:'On completion: RTD confirms faults with RTG in trailing cab, then records faults in Section 2 of Preparation Certificate in driving cab'},
+      ]},
+    ],
+    ngr:[
+      {title:'Doors Test',steps:[
+        {role:'RTD',text:'Move brake controller to Full Service'},
+        {role:'RTD',text:'Confirm BCP on all cars above 250kPa'},
+        {role:'RTD',text:'Move Brake Controller to Run'},
+        {role:'NOTE',text:'Driver will notice normal brake is slow to release'},
+        {role:'RTD',text:'Release RHS/LHS Doors'},
+        {role:'RTD',text:'Observe BCP on all cars is 140kPa'},
+        {role:'RTD',text:'Move brake controller to Full Service'},
+        {role:'RTD',text:'Close LHS/RHS Doors'},
+        {role:'RTD',text:'Observe BCPs are all applied'},
+      ]},
+      {title:'Communications',steps:[
+        {role:'BOTH',text:'Test audible operation of Voice Announcement System (VAS)'},
+        {role:'BOTH',text:'Check operation of cab radio and place handset in cradle'},
+        {role:'BOTH',text:'Check operation of cab to cab call tone'},
+        {role:'BOTH',text:'Test Public Address (PA) is working correctly and place handset in cradle'},
+        {role:'BOTH',text:'Check IC and PA indicator lamps on VAS control panel are illuminated'},
+      ]},
+      {title:'Continuity Test',note:'RTD in leading cab, RTG in trailing cab.',steps:[
+        {role:'RTD',text:'Energise the cab. Ensure park brake applied — place Brake Controller in Run position'},
+        {role:'RTD',text:'Contact RTG via IC'},
+        {role:'RTD',text:'Confirm with RTG:\nMR 700–850kPa | BP 500±15kPa\nDMA/DMB BC 0±15kPa | TA/TB BC 0±15kPa | MA/MB BC 0±15kPa'},
+        {role:'RTD',text:'Release DSC'},
+        {role:'RTD',text:'Confirm with RTG:\nMR 700–850kPa | BP 0kPa\nDMA/DMB BC 286±15kPa | TA/TB BC 250±15kPa | MA/MB BC 277±15kPa'},
+        {role:'RTD',text:'Energise DSC again'},
+        {role:'RTD',text:'Confirm with RTG:\nMR 700–850kPa | BP 500±15kPa\nDMA/DMB BC 0±15kPa | TA/TB BC 0±15kPa | MA/MB BC 0±15kPa'},
+        {role:'RTD',text:'Check bell operation and receive bells from second RTC'},
+      ]},
+      {title:'Train Whistle',steps:[
+        {role:'RTD',text:'Ensure second crew member is aware the test will be performed'},
+        {role:'RTD',text:'Operate both Town and Country whistles'},
+      ]},
+    ],
+  }},
+  dooriso:{title:'Door Isolation — RTD Role',eyebrow:'MD-14-38 · Part 1 · Sec 1.2–1.7',note:'This section covers the RTD\'s specific actions only. The guard handles key locking, electrical isolation, sticker application and passenger announcements.',fleets:{emu:'EMU',smu:'SMU 200/220',imu100:'IMU 100',imu120:'IMU 120',imu160:'IMU 160/260',ngr:'NGR'},content:{
+    emu:[
+      {title:'RTD Actions — EMU',steps:[
+        {role:'RTD',text:'EMU customer access doors may be either released OR closed before the guard begins key locking and electrical isolation — no specific RTD console action is required first'},
+        {role:'NOTE',text:'Guard handles: ensuring doors are closed, key locking, electrical isolation in LSB, sticker application, reporting to RMC and customer announcements'},
+      ]},
+      {title:'EMU — Door Control Unit Failure',steps:[
+        {role:'RTD',text:'Release the doors — guard will physically check which doors remain closed to locate the failed Door Control Unit'},
+        {role:'RTD',text:'Check Driver Door Display Unit in working cab for a pair of door open indicator lights when doors are closed. If no indication, release doors for guard to physically check'},
+        {role:'RTD',text:'After guard inserts BiLock Key and changes switch from RUN to ISOLATE — confirm door open tile light has extinguished'},
+      ]},
+    ],
+    smu:[{title:'RTD Actions — SMU 200/220',steps:[
+      {role:'WARNING',text:'RTD MUST first close customer access doors via the console door close button before the guard begins key locking and electrical isolation'},
+      {role:'RTD',text:'Close customer access doors via console door close button'},
+      {role:'NOTE',text:'If doors are faulty and unable to be closed by RTD, the guard will manually pull doors closed (guard will contact RTD before activating PE)'},
+    ]}],
+    imu100:[{title:'RTD Actions — IMU 100',steps:[
+      {role:'WARNING',text:'RTD MUST first close customer access doors via the console door close button before the guard begins isolation'},
+      {role:'RTD',text:'Close customer access doors via console door close button'},
+    ]}],
+    imu120:[{title:'RTD Actions — IMU 120',steps:[
+      {role:'WARNING',text:'RTD MUST first close customer access doors via the console door close button before electrical isolation'},
+      {role:'RTD',text:'Close customer access doors via console door close button'},
+    ]}],
+    imu160:[
+      {title:'RTD Actions — IMU 160 / SMU 260',steps:[
+        {role:'WARNING',text:'RTD MUST first close customer access doors via the console door close button before key locking and electrical isolation'},
+        {role:'WARNING',text:'If RTC individually electrically isolates doors and then operates the car isolation switch when RTD has NOT first closed the doors — the isolated doors will NOT close and lock'},
+        {role:'RTD',text:'Close customer access doors via console door close button'},
+      ]},
+      {title:'Emergency Door Reset (RTD)',steps:[
+        {role:'WARNING',text:'On revenue services: RTD\'s Door Open button must NOT be pressed unless there is a platform adjacent to any unlocked doors on that side'},
+        {role:'RTD',text:'Monitor Door Open Light — if it remains on after guard has reset the door, guard will cycle the override key switch at the door where PE was activated'},
+      ]},
+    ],
+    ngr:[
+      {title:'RTD Actions — NGR',steps:[
+        {role:'WARNING',text:'RTD MUST first close customer access doors via the console door close button before electrical isolation'},
+        {role:'WARNING',text:'If RTC individually electrically isolates doors and then operates the car isolation switch when RTD has NOT first closed the doors — the isolated doors will NOT close and lock'},
+        {role:'RTD',text:'Close customer access doors via console door close button'},
+      ]},
+      {title:'Emergency Door Reset (RTD)',steps:[
+        {role:'WARNING',text:'On revenue services: RTD\'s Door Open button must NOT be pressed unless there is a platform adjacent to any unlocked doors on that side'},
+        {role:'RTD',text:'Monitor Door Open Light and traction status'},
+        {role:'RTD',text:'If Door Open Light remains on after guard reset, guard will cycle the override key switch at the door where PE was activated'},
+      ]},
+    ],
+  }},
+  stabling:{title:'Stabling',eyebrow:'MD-14-38 · Part 1 · Stabling/Stowing',fleets:{online:'Online Stabling',shutdown:'Shutdown'},content:{
+    online:[
+      {title:'Stabling / Stowing Online',steps:[
+        {role:'RTD',text:'Stop at the designated stopping point — clear of crossovers, not fouling other tracks or obstructing movement of other vehicles'},
+        {role:'RTD',text:'Place Brake Controller to Full-Service position'},
+        {role:'RTD',text:'Electrically apply Park Brake whilst BP is charged to 500kPa'},
+        {role:'RTD',text:'Confirm park brake is ON:\n• EMU, 100, 120, 200, 220: Park Brake tile illuminated\n• IMU 160, SMU 260: Park Brake off button illuminated\n• NGR: Park Brake off button illuminated AND check PROCESS INFO MENU on HMI-O — all Park Brakes ON'},
+        {role:'NOTE',text:'If stowing in Mayne cleaning roads (1CD, 2CD, 3CD, 4CD): passenger side doors to be released on platform sides only'},
+        {role:'RTD',text:'Move Direction Controller to Isolate'},
+        {role:'RTD',text:'Turn all switches off'},
+        {role:'RTD',text:'(EMU only) After sealing valve has seated, open emergency BP cock to reduce BP to 0kPa — then reclose'},
+        {role:'RTD',text:'Remove Direction Controller and place in holder inside Electrical Locker. Ensure EL is closed and locked'},
+        {role:'RTD',text:'Enter all faults in fault notification section of Preparation Certificate:\n• Non-NGR: record on MD-14-514, report to RMC\n• NGR: record on MD-17-458, report to ISST'},
+        {role:'RTD',text:'Close and lock all cab windows and cab doors when vacating'},
+      ]},
+      {title:'Mayne Cleaning Roads Specific (1CD–4CD)',note:'Additional requirements when stabling in Mayne Rail Complex cleaning roads.',steps:[
+        {role:'RTD',text:'Stop at designated stopping point — clear of running roads and crossovers'},
+        {role:'RTD',text:'Electrically apply Park Brake whilst BP charged to 500kPa. Confirm park brake ON'},
+        {role:'RTD',text:'Release customer side doors on platform sides only'},
+        {role:'RTD',text:'Move Direction Controller to Isolate'},
+        {role:'RTD',text:'Turn all switches off'},
+        {role:'RTD',text:'(EMU only) After sealing valve has seated, open emergency BP cock to 0kPa — then reclose'},
+        {role:'RTD',text:'Remove Direction Controller and lock in Electrical Locker'},
+        {role:'RTD',text:'Leave all interior lights and air conditioning turned ON'},
+        {role:'RTD',text:'Enter all faults in Preparation Certificate — report to RMC/ISST'},
+        {role:'RTD',text:'Close all windows and lock all doors when vacating'},
+      ]},
+    ],
+    shutdown:[
+      {title:'Stabling Shutdown',steps:[
+        {role:'RTD',text:'Stop at the designated stopping point — clear of crossovers, not fouling other tracks'},
+        {role:'RTD',text:'Place Brake Controller to Full-Service position'},
+        {role:'RTD',text:'Electrically apply Park Brake whilst BP is charged to 500kPa'},
+        {role:'RTD',text:'Confirm park brake is ON:\n• EMU, 100, 120, 200, 220: Park Brake tile illuminated\n• IMU 160, SMU 260: Park Brake off button illuminated\n• NGR: Park Brake off button illuminated AND check PROCESS INFO MENU on HMI-O — all Park Brakes ON'},
+        {role:'RTD',text:'Open MCB and lower pantograph:\n• EMU / 100 / 120 / 200 / 220: Press and hold pan/MCB off/down → MCB opens → [SMU 200 only: wait 90 sec] → press and hold again to lower pantograph\n• IMU 160 / SMU 260 / NGR: Press and hold pan/MCB off/down button once — opens MCB AND lowers pantographs simultaneously'},
+        {role:'RTD',text:'Confirm pantographs are in lowered position and clear of contact wire'},
+        {role:'RTD',text:'Move Direction Controller to Isolate'},
+        {role:'RTD',text:'Turn all switches off'},
+        {role:'RTD',text:'(EMUs only) After sealing valve has seated, open emergency BP cock to 0kPa — then reclose'},
+        {role:'RTD',text:'Remove Direction Controller and lock in Electrical Locker'},
+        {role:'RTD',text:'Enter all faults in fault notification section of Preparation Certificate:\n• Non-NGR: record on MD-14-514, report to RMC\n• NGR: record on MD-17-458, report to ISST'},
+        {role:'RTD',text:'Turn off battery power in Electrical Locker'},
+        {role:'RTD',text:'Close and lock all cab windows and cab doors when vacating'},
+      ]},
+    ],
+  }},
+  rules:{title:'Rules & Quick Reference',eyebrow:'MD-14-38 · Part 1',content:[
+    {title:'BO-BO (Batteries Off — Batteries On)',items:[
+      {label:'Rule',text:'RTDs must NOT perform a BO-BO to reset a fault without first obtaining authority from the Rollingstock Maintenance Coordinator (RMC).'},
+      {label:'Rule',text:'Rollingstock faults are to be reported under normal reporting protocols — not reset via BO-BO.'},
+    ]},
+    {title:'Cab Passes',items:[
+      {label:'Rule',text:'No person permitted to travel in RTC cabs unless they hold a cab pass — except in an emergency.'},
+      {label:'Rule',text:'RTC may refuse permission to any approved person (except a green pass holder) or request they vacate if safety would be compromised or cab protocol is not complied with.'},
+      {label:'Rule',text:'A person denied permission must be referred to the local manager.'},
+      {label:'Rule',text:'RTC permitted to travel in non-operational cabs when travelling spare, subject to advising the operating RTC.'},
+    ]},
+    {title:'Driving Consoles',items:[
+      {label:'Rule',text:'Only qualified rail traffic drivers are permitted to prepare driving consoles — other than qualified maintenance personnel performing maintenance tasks.'},
+    ]},
+    {title:'Lockout Devices',items:[
+      {label:'Rule',text:'Lockout devices are used as a safety measure to protect persons working on rollingstock. They can be fitted to the direction controller or the emergency valve cock.'},
+      {label:'WARNING',text:'If lockout devices are identified when preparing rollingstock — do NOT remove or tamper with them.'},
+      {label:'Action',text:'Advise the Person in Charge of the location and await further instructions.'},
+    ]},
+    {title:'Train Unit Security — RTD Responsibilities',items:[
+      {label:'Rule',text:'If required, ensure appropriate track protection from the relevant Officer in Charge (OIC).'},
+      {label:'Action',text:'1. Apply Park Brake'},
+      {label:'Action',text:'2. Move Brake Controller to Off position'},
+      {label:'Action',text:'3. Move Direction Controller to Isolate'},
+      {label:'Action',text:'4. Ensure Brake Pipe has vented to 0kPa (as per rollingstock type requirements)'},
+      {label:'Action',text:'5. Remove Direction Controller and lock in Electrical Locker'},
+      {label:'Action',text:'6. Prior to exiting: close all windows, lock offside cab door and vestibule door, wear appropriate PPE'},
+      {label:'Action',text:'7. After exiting: ensure exit side door is locked and secure'},
+      {label:'NOTE',text:'For checking front of train signals when cab is activated, RTDs are permitted to momentarily exit the cab without securing the Direction Controller or cab door.'},
+    ]},
+    {title:'Track Buckles — Electric Train Units',items:[
+      {label:'Rule',text:'When NCO broadcasts a blanket heat speed restriction — strictly adhere to the nominated maximum speed. Remain particularly vigilant whilst proceeding through the rail corridor.'},
+      {label:'WARNING',text:'A small "kick" in the track left unreported can quickly transform into a track buckle with dangerous consequences for the next service.'},
+      {label:'Action',text:'1. Where possible, stop prior to the track buckle using controlled reduction of speed — do NOT apply emergency brakes.'},
+      {label:'Action',text:'2. Where not possible to stop prior, make initial brake application to slow as much as possible. Release brakes at the point where no braking forces will be emitted as the train traverses the buckle.'},
+      {label:'Action',text:'3. In multiple track areas: make an "Emergency" radio broadcast warning all trains in the area.'},
+      {label:'Action',text:'4. Report immediately to NCO via radio giving full particulars of the Condition Affecting the Network (CAN).'},
+      {label:'NOTE',text:'Where the buckle is severe and the train will potentially derail upon entering: RTD should make an emergency brake application and stop the train as quickly as possible.'},
+    ]},
+    {title:'Emergency Broadcast — Digital Radios',items:[
+      {label:'Rule',text:'The emergency button feature (Tait T2020 in-cab / TP9300 handheld) is ONLY to be used in an emergency.'},
+      {label:'Action',text:'1. Press and hold Emergency Button or "E" Key for at least 2 seconds to start an emergency call.'},
+      {label:'Action',text:'2. Press and hold the PTT button on handset to talk.'},
+      {label:'Action',text:'3. Say "Emergency, emergency, emergency…" and follow the standard QNRP Emergency radio communications process.'},
+      {label:'INFO',text:'All radios on the corresponding Talk Group, the same NCO geographical zone, and within 1km radius of the transmitting radio are imported into the call. GPS location sent automatically to NCO (shown red on Zetron display).'},
+      {label:'INFO',text:'Call ends when: originator ends call, NCO ends call, or times out (10 secs after established if no PTT; or 30 secs after last PTT).'},
+      {label:'WARNING',text:'Exercise caution with the Shunt or Auto buttons to prevent unintentional activation of the emergency call feature.'},
+    ]},
+  ]},
+  signalling:{title:'Signalling Systems',eyebrow:'MD-14-38 · Part 1 · Signalling Systems Awareness',content:[
+    {title:'Purpose of the Signalling System',items:[{label:'',text:'Used to ensure the safe operation of rail traffic and regulate train and shunting movements. Core functions: (1) Maintain train separation, (2) Maintain route integrity, (3) Provide indications to RTC, (4) Maintain safety if equipment fails (fail-safe).'}]},
+    {title:'Block Working',items:[{label:'',text:'Only one rail traffic movement is authorised to be on any one section at any one time. Exception: when rail traffic has failed and relief is required to enter the section.'}]},
+    {title:'Track Circuiting',items:[{label:'',text:'An electric current passes through both rails. When a train enters the section, its wheels short-circuit the current — the relay de-energises and the section shows "occupied". When occupied, the circuit holds the signal in the rear at danger and locks points in the route.'}]},
+    {title:'Axle Counters',items:[{label:'',text:'Counters at each end of a section count axles entering and leaving. By keeping an accurate count, the system determines if the section is occupied without relying on rail electrical continuity.'}]},
+    {title:'Overlap',items:[{label:'',text:'A section of track on the departure side of a Limit of Authority (LOA) that must be clear before rail traffic can be authorised to pass the previous LOA. Provides a safety zone against overruns past the signal. Where there is less overlap than would otherwise be provided, a flashing yellow aspect may be displayed.'}]},
+    {title:'Sighting Distance',items:[{label:'',text:'The distance between where a signal can first be seen and its physical location. Must allow the RTD a minimum of 8 seconds of reasonable approach viewing at the board line speed in clear weather (day and night), or no less than 100 metres — whichever is the greater. Where sighting is limited by cuttings, walls or buildings, a Repeat Signal or Signal Distance Marker board may be provided.'}]},
+    {title:'Headway',items:[{label:'',text:'The interval in time and distance between two following trains on the same route passing a given point. For two non-stop trains, both must travel at the line signalling speed — this allows the following train to proceed on green signals.'}]},
+    {title:'Flashing Yellow Aspect',items:[
+      {label:'Speed',text:'Allows rail traffic to proceed to the next stop signal at a speed NOT exceeding 40km/h.'},
+      {label:'When used',text:'No overlap or very short overlap; overlap ahead of signal in advance is occupied; points in overlap beyond next red remain free to move; or a ground frame release has been taken for shunting (Regional only).'},
+    ]},
+    {title:'Two-Aspect Signals',items:[{label:'',text:'Show only RED (STOP) or GREEN (PROCEED). Used on lines with infrequent traffic where signals can be placed a considerable distance apart. Preceded by an Approach Signal showing yellow or green as a warning.'}]},
+    {title:'Three-Aspect Signals',items:[{label:'',text:'Display RED, YELLOW or GREEN. Each signal acts as both a stop signal and an approach signal for the next signal in advance. Used where stop signals need to be closer together.'}]},
+    {title:'Four-Aspect Signals',items:[{label:'',text:'Display RED, YELLOW, DOUBLE YELLOW or GREEN. Used on high-speed intensive services with close headways. Double yellow = preliminary caution (two signals away from red). Single yellow = one signal away from red.'}]},
+    {title:'Approach Locking',items:[{label:'',text:'Prevents the route ahead of a signal being changed once the RTD has seen a PROCEED aspect. Provision is made for locking to be released if sufficient time has elapsed for the train to stop at the signal if it is returned to danger.'}]},
+    {title:'Route Locking',items:[{label:'',text:'Effected when a train passes a signal at PROCEED and the signal returns to STOP. Points ahead remain held. Route released section by section behind the train as it clears. This is why trains must not be reversed without proper authority.'}]},
+    {title:'Fail-Safe Principle',items:[{label:'',text:'If any equipment fails to function correctly, an unsafe (permissive) condition will not result — instead a more restrictive condition occurs. Example: if a signal wire breaks, counterweights place the signal at STOP. In electric signalling, all permissive aspects result from a relay being energised — a malfunction prevents energisation, giving a more restrictive aspect.'}]},
+    {title:'Limit of Shunt (LOS) Boards',items:[{label:'',text:'Placed throughout the Queensland Rail network to define the limit of shunting operations. Rail traffic must not proceed beyond LOS boards unless given proper authority to do so.'}]},
+  ]},
+};
+
+function openProc(key) {
+  currentProc = key;
+  renderProc(key, null);
+  showScreen('screen-proc-detail');
+}
+
+function renderProc(key, fleet) {
+  const proc = PROC_DATA[key];
+  if (!proc) return;
+  const activeFleet = fleet || (proc.fleets ? Object.keys(proc.fleets)[0] : null);
+  let html = `<div class="detail-header">
+    <div class="detail-cat-label">${proc.eyebrow}</div>
+    <div class="detail-title">${proc.title}</div>
+    ${proc.note ? `<div style="margin-top:8px;font-size:14px;color:var(--text3);line-height:1.5">${proc.note}</div>` : ''}
+  </div>`;
+
+  if (proc.fleets) {
+    html += `<div class="proc-fleet-wrap">`;
+    Object.entries(proc.fleets).forEach(([fk,fl]) => {
+      html += `<button class="proc-fleet-btn ${activeFleet===fk?'active':''}"
+        onclick="renderProc('${key}','${fk}');document.getElementById('main').scrollTop=0">${fl}</button>`;
+    });
+    html += `</div>`;
+    html += renderProcSections(proc.content[activeFleet]||[]);
+  } else {
+    html += renderRulesSections(proc.content);
+  }
+
+  document.getElementById('proc-detail-content').innerHTML = html;
+  document.getElementById('header-title').textContent = proc.title;
+}
+
+function renderProcSections(sections) {
+  return '<div style="padding-bottom:20px">' + sections.map(sec => {
+    let stepNum = 0;
+    const stepsHtml = sec.steps.map(s => {
+      if (s.role==='NOTE') return `<div class="proc-step-note">📝 ${s.text}</div>`;
+      if (s.role==='WARNING') return `<div class="proc-step-warning">⚠️ ${s.text}</div>`;
+      stepNum++;
+      const rc = s.role==='RTD'?'rtd':s.role==='SHARED'?'shared':'both';
+      const rl = s.role==='SHARED'?'RTG':s.role;
+      return `<div class="proc-step">
+        <div class="step-num">${stepNum}</div>
+        <div class="step-body">
+          <div class="step-role ${rc}">${rl}</div>
+          <div class="step-text">${s.text}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="proc-section">
+      <div class="proc-section-title">${sec.title}</div>
+      ${sec.note?`<div class="proc-section-note">${sec.note}</div>`:''}
+      <div class="proc-steps">${stepsHtml}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderRulesSections(sections) {
+  return '<div style="padding-bottom:20px">' + sections.map(sec => {
+    const itemsHtml = sec.items.map(item => {
+      const lc = {WARNING:'warning',Action:'action',INFO:'info',NOTE:'caution',Rule:'',Ref:'caution',Speed:'info','When used':'action'}[item.label]||'';
+      return `<div class="rules-item">
+        <div class="rules-item-label ${lc}">${item.label}</div>
+        <div class="rules-item-text">${item.text}</div>
+      </div>`;
+    }).join('');
+    return `<div class="rules-section">
+      <div class="rules-section-title">${sec.title}</div>
+      ${itemsHtml}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+
 (function initPWA() {
 
   // 1. Generate app icon via canvas
